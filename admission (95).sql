@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 30, 2025 at 02:46 AM
+-- Generation Time: Nov 03, 2025 at 03:52 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -535,6 +535,7 @@ INSERT INTO `applicant_numbering_table` (`applicant_number`, `person_id`, `qr_co
 CREATE TABLE `company_settings` (
   `id` int(11) NOT NULL,
   `company_name` varchar(255) DEFAULT NULL,
+  `short_term` varchar(50) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `header_color` varchar(20) DEFAULT '#ffffff',
   `footer_text` text DEFAULT NULL,
@@ -549,8 +550,8 @@ CREATE TABLE `company_settings` (
 -- Dumping data for table `company_settings`
 --
 
-INSERT INTO `company_settings` (`id`, `company_name`, `address`, `header_color`, `footer_text`, `footer_color`, `logo_url`, `bg_image`, `created_at`, `updated_at`) VALUES
-(1, 'Eulogio \"Amang\" Rodriguez Institute of Science and Technology ', 'Nagtahan St. Sampaloc, Manila', '#8b2323', '  © 2025 Eulogio \"Amang\" Rodriguez Institute of Science and Technology - Manila Campus', '#8b2323', '/uploads/Logo.png', '/uploads/Background.png', '2025-10-15 01:27:38', '2025-10-29 03:16:18');
+INSERT INTO `company_settings` (`id`, `company_name`, `short_term`, `address`, `header_color`, `footer_text`, `footer_color`, `logo_url`, `bg_image`, `created_at`, `updated_at`) VALUES
+(1, 'Eulogio \"Amang\" Rodriguez Institute of Science and Technology ', '', 'Nagtahan St. Sampaloc, Manila', '#8b2323', '  © 2025 Eulogio \"Amang\" Rodriguez Institute of Science and Technology - Manila Campus', '#8b2323', '/uploads/Logo.png', '/uploads/Background.png', '2025-10-15 01:27:38', '2025-11-01 15:10:55');
 
 -- --------------------------------------------------------
 
@@ -1295,7 +1296,9 @@ INSERT INTO `notifications` (`id`, `type`, `message`, `applicant_number`, `actor
 (1066, 'update', '✏️ Document status for Applicant #2025100001 set to \"Documents Verified & ECAT\"', '2025100001', 'markmontano522@gmail.com', 'REGISTRAR (224-06342M) - Montano, Mark Anthony Placido', '2025-10-29 00:19:44'),
 (1067, 'update', '✏️ Document status for Applicant #2025100001 set to \"Documents Verified & ECAT\"', '2025100001', 'markmontano522@gmail.com', 'REGISTRAR (224-06342M) - Montano, Mark Anthony Placido', '2025-10-29 00:24:36'),
 (1068, 'update', '✏️ Document status for Applicant #2025100001 set to \"Documents Verified & ECAT\"', '2025100001', 'markmontano522@gmail.com', 'REGISTRAR (224-06342M) - Montano, Mark Anthony Placido', '2025-10-29 00:24:36'),
-(1069, 'Search', 'User #38 - Montano, Mark Anthony Placido searched student 202500001 in Program Evaluation', '38', 'markmontano999@gmail.com', 'Montano, Mark Anthony Placido', '2025-10-29 21:13:14');
+(1069, 'Search', 'User #38 - Montano, Mark Anthony Placido searched student 202500001 in Program Evaluation', '38', 'markmontano999@gmail.com', 'Montano, Mark Anthony Placido', '2025-10-29 21:13:14'),
+(1070, 'submit', '✅ Applicant #2025100001 - Montaño, Mark Anthony P. submitted all requirements.', '2025100001', 'markmontano522@gmail.com', 'REGISTRAR', '2025-11-01 20:19:02'),
+(1071, 'unsubmit', '↩️ Applicant #2025100001 - Montaño, Mark Anthony P. was unsubmitted.', '2025100001', 'markmontano522@gmail.com', 'REGISTRAR', '2025-11-01 20:19:19');
 
 -- --------------------------------------------------------
 
@@ -1710,7 +1713,7 @@ CREATE TABLE `person_table` (
 --
 
 INSERT INTO `person_table` (`person_id`, `profile_img`, `campus`, `academicProgram`, `classifiedAs`, `applyingAs`, `program`, `program2`, `program3`, `yearLevel`, `last_name`, `first_name`, `middle_name`, `extension`, `nickname`, `height`, `weight`, `lrnNumber`, `nolrnNumber`, `gender`, `pwdMember`, `pwdType`, `pwdId`, `birthOfDate`, `age`, `birthPlace`, `languageDialectSpoken`, `citizenship`, `religion`, `civilStatus`, `tribeEthnicGroup`, `cellphoneNumber`, `emailAddress`, `presentStreet`, `presentBarangay`, `presentZipCode`, `presentRegion`, `presentProvince`, `presentMunicipality`, `presentDswdHouseholdNumber`, `sameAsPresentAddress`, `permanentStreet`, `permanentBarangay`, `permanentZipCode`, `permanentRegion`, `permanentProvince`, `permanentMunicipality`, `permanentDswdHouseholdNumber`, `solo_parent`, `father_deceased`, `father_family_name`, `father_given_name`, `father_middle_name`, `father_ext`, `father_nickname`, `father_education`, `father_education_level`, `father_last_school`, `father_course`, `father_year_graduated`, `father_school_address`, `father_contact`, `father_occupation`, `father_employer`, `father_income`, `father_email`, `mother_deceased`, `mother_family_name`, `mother_given_name`, `mother_middle_name`, `mother_ext`, `mother_nickname`, `mother_education`, `mother_education_level`, `mother_last_school`, `mother_course`, `mother_year_graduated`, `mother_school_address`, `mother_contact`, `mother_occupation`, `mother_employer`, `mother_income`, `mother_email`, `guardian`, `guardian_family_name`, `guardian_given_name`, `guardian_middle_name`, `guardian_ext`, `guardian_nickname`, `guardian_address`, `guardian_contact`, `guardian_email`, `annual_income`, `schoolLevel`, `schoolLastAttended`, `schoolAddress`, `courseProgram`, `honor`, `generalAverage`, `yearGraduated`, `schoolLevel1`, `schoolLastAttended1`, `schoolAddress1`, `courseProgram1`, `honor1`, `generalAverage1`, `yearGraduated1`, `strand`, `cough`, `colds`, `fever`, `asthma`, `faintingSpells`, `heartDisease`, `tuberculosis`, `frequentHeadaches`, `hernia`, `chronicCough`, `headNeckInjury`, `hiv`, `highBloodPressure`, `diabetesMellitus`, `allergies`, `cancer`, `smokingCigarette`, `alcoholDrinking`, `hospitalized`, `hospitalizationDetails`, `medications`, `hadCovid`, `covidDate`, `vaccine1Brand`, `vaccine1Date`, `vaccine2Brand`, `vaccine2Date`, `booster1Brand`, `booster1Date`, `booster2Brand`, `booster2Date`, `chestXray`, `cbc`, `urinalysis`, `otherworkups`, `symptomsToday`, `remarks`, `termsOfAgreement`, `created_at`, `current_step`) VALUES
-(1, '2025100001_1by1_2025.jpg', 1, 'Techvoc', 'Freshman (First Year)', 'Master Degree Graduate', '1', '11', '14', 'First Year', 'Montaño', 'Mark Anthony', 'Placido', NULL, 'Johnny', '5\'11', '65kg', '123456789012', 0, 0, 0, NULL, NULL, '2005-10-23', 20, 'Manila, Philippines', 'Tagalog, English', 'FILIPINO', 'Born Again', 'Single', 'Agta', '09171234567999999', 'markmontano999@gmail.com', '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, 0, 'Doe Sr.', 'Jonathan', 'Smiths', 'III', 'Jon', 1, NULL, NULL, NULL, NULL, NULL, '09181234567', 'Engineer', 'ABC Corp', '50000', 'jon.doe@abc.com', 0, 'Jane', 'Mary', 'Anne', NULL, 'Janey', 1, NULL, NULL, NULL, NULL, NULL, '09221234567', 'Accountant', 'XYZ Corp', '100000', 'jane.doe@xyz.com', 'StepFather', 'Parker', 'Ben', 'Jose', 'IV', 'Benny', '789 Recto Av', '09192233445', NULL, '135,000 to 250,000', 'Senior High School', 'CGEAHS', 'Pasig City', 'STEM', 'With Honors', 92.50, 2022, 'Senior High School', 'CGEAHS', 'Rizal High School', 'Rizal High School', '0', 66.00, 0, 'Information and Communications Technology (ICT)', 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 'Wala ngani', 'Vitamins C', 1, '2022-02-11', 'Pfizer', '2022-03-14', 'Pfizer', '2022-04-13', 'Moderna', '2022-07-14', 'Pfizer', '2023-01-14', 'Normal', 'Normal', 'Normal', 'Normal', 1, 'Fit to enroll', 1, '2025-11-08', 1),
+(1, '2025100001_1by1_2025.jpg', 1, 'Undergraduate', 'Freshman (First Year)', 'Master Degree Graduate', '17', '11', '14', 'First Year', 'Montaño', 'Mark Anthony', 'Placido', NULL, 'Johnny', '5\'11', '65kg', '123456789012', 0, 0, 0, NULL, NULL, '2005-10-23', 20, 'Manila, Philippines', 'Tagalog, English', 'FILIPINO', 'Born Again', 'Single', 'Agta', '09171234567999999', 'markmontano999@gmail.com', '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, 0, 'Doe Sr.', 'Jonathan', 'Smiths', 'III', 'Jon', 1, NULL, NULL, NULL, NULL, NULL, '09181234567', 'Engineer', 'ABC Corp', '50000', 'jon.doe@abc.com', 0, 'Jane', 'Mary', 'Anne', NULL, 'Janey', 1, NULL, NULL, NULL, NULL, NULL, '09221234567', 'Accountant', 'XYZ Corp', '100000', 'jane.doe@xyz.com', 'StepFather', 'Parker', 'Ben', 'Jose', 'IV', 'Benny', '789 Recto Av', '09192233445', NULL, '135,000 to 250,000', 'Senior High School', 'CGEAHS', 'Pasig Citys', 'STEM', 'With Honors', 92.50, 2022, 'Senior High School', 'CGEAHS', 'Rizal High School', 'Rizal High School', '0', 66.00, 0, 'Information and Communications Technology (ICT)', 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 'Wala ngani', 'Vitamins C', 1, '2022-02-11', 'Pfizer', '2022-03-14', 'Pfizer', '2022-04-13', 'Moderna', '2022-07-14', 'Pfizer', '2023-01-14', 'Normal', 'Normal', 'Normal', 'Normal', 1, 'Fit to enroll', 1, '2025-11-08', 1),
 (2, '3_1by1_2025.jpg', 1, 'Techvoc', 'Freshman (First Year)', 'Senior High School Graduate', '38', '4', '3', 'Second  Year', 'Emily', 'Johnson', 'Grace', '', 'MARK', '5\'11', '65', '123456789012', 0, 0, 0, '', '', '2003-06-26', 21, 'Manila, Philippines', 'Tagalog, English', 'ALGERIAN', 'Iglesia Ni Cristo', 'Single', 'Cebuano', '09953242510', 'emily.johnson2@example.com', '19 G Dona yayang Street Libis', 'Pag-asa', '4100', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'City Of Mandaluyong', 'DSWD123456', 0, '19 G Dona yayang Street Libis', 'Malipayon', '4100', 'Region X (Northern Mindanao)', 'Bukidnon', 'Pangantucan', 'DSWD123456', 0, 0, '', '', '', '', '', 0, '', '', '', '', '', '', '', '', '', '', 0, '', '', '', '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'fgdsgfasftrasf', '', '', '', 0.00, 0, '', '', '', '', '', 83.00, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', 0, '', 0, '2024-12-10', 1),
 (60, NULL, 0, NULL, NULL, NULL, '31', NULL, NULL, NULL, 'Bell', 'Evelyn', 'Faith', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'evelyn.bell60@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 63.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-09', 1),
 (59, NULL, 0, NULL, NULL, NULL, '5', NULL, NULL, NULL, 'Morgan', 'Levi', 'Anne', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'levi.morgan59@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 99.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-04-12', 1),
@@ -2061,7 +2064,7 @@ INSERT INTO `requirement_uploads` (`upload_id`, `requirements_id`, `person_id`, 
 (239, 2, 329, NULL, '2025100220_Form138_2025.pdf', 'admissionservices.pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, NULL, '2025-10-03 23:04:08', '61'),
 (240, 3, 329, NULL, '2025100220_GoodMoralCharacter_2025.pdf', 'exampermit.pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, NULL, '2025-10-03 23:04:22', '61'),
 (241, 4, 329, NULL, '2025100220_CertificateOfGraduatingClass_2025.pdf', 'admissionservices.pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, NULL, '2025-10-03 23:04:25', '61'),
-(242, 5, 329, NULL, '2025100220_VaccineCard_2025.pdf', 'personaldataformprint.pdf', NULL, 0, NULL, NULL, NULL, NULL, '2025-10-03 23:04:27', NULL),
+(242, 5, 329, NULL, '2025100220_VaccineCard_2025.pdf', 'personaldataformprint.pdf', NULL, 2, 'Documents Verified & ECAT', NULL, NULL, NULL, '2025-10-03 23:04:27', '61'),
 (262, 8, 307, NULL, '2025100201_TS_2025.png', '1.png', NULL, 0, NULL, NULL, NULL, NULL, '2025-10-08 16:15:21', NULL),
 (325, 1, 332, 1, '2025100223_PSA_2025.pdf', 'INITIAL-PRESENTATION-RUBRICS-SYSARCH2-4B.docx.pdf', '1', 0, 'Documents Verified & ECAT', '[]', 1, 1, '2025-10-10 07:35:42', NULL),
 (326, 2, 332, 1, '2025100223_F138_2025.pdf', 'ProgramEvaluationSample.pdf', '1', 0, 'Documents Verified & ECAT', '[]', 1, 1, '2025-10-10 07:35:45', NULL),
@@ -2070,20 +2073,20 @@ INSERT INTO `requirement_uploads` (`upload_id`, `requirements_id`, `person_id`, 
 (329, 32, 332, 1, '2025100223_TP_2025.pdf', 'examinationpermit.pdf', '1', 0, 'Documents Verified & ECAT', '[]', 1, 1, '2025-10-10 07:35:53', NULL),
 (330, 5, 332, 1, '2025100223_CVC_2025.pdf', 'admissionformprocess.pdf', '1', 0, 'Documents Verified & ECAT', '[]', 1, 1, '2025-10-10 07:35:56', NULL),
 (331, 35, 332, 1, '2025100223_TH_2025.pdf', 'admissionservices.pdf', '1', 0, 'Documents Verified & ECAT', '[]', 1, 1, '2025-10-10 07:36:00', NULL),
-(339, 1, 330, NULL, '2025100221_PSA_2025.png', 'EXAM.png', NULL, 0, NULL, NULL, NULL, 0, '2025-10-28 02:33:28', NULL),
-(340, 3, 330, NULL, '2025100221_CGMC_2025.pdf', 'DOCUMENTATION TITLE PAGE.docx.pdf', NULL, 0, NULL, NULL, NULL, 0, '2025-10-28 02:33:33', NULL),
-(341, 2, 330, NULL, '2025100221_F138_2025.pdf', 'health_record.php (6).pdf', NULL, 0, NULL, NULL, NULL, 0, '2025-10-28 02:33:36', NULL),
-(342, 4, 330, NULL, '2025100221_CBGC_2025.png', 'onepunchman.png', NULL, 0, NULL, NULL, NULL, 0, '2025-10-28 02:33:42', NULL),
-(343, 5, 330, NULL, '2025100221_CVC_2025.pdf', 'WBS  - WBS.pdf', NULL, 0, NULL, NULL, NULL, 0, '2025-10-28 02:33:48', NULL),
+(339, 1, 330, NULL, '2025100221_PSA_2025.png', 'EXAM.png', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:33:28', '61'),
+(340, 3, 330, NULL, '2025100221_CGMC_2025.pdf', 'DOCUMENTATION TITLE PAGE.docx.pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:33:33', '61'),
+(341, 2, 330, NULL, '2025100221_F138_2025.pdf', 'health_record.php (6).pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:33:36', '61'),
+(342, 4, 330, NULL, '2025100221_CBGC_2025.png', 'onepunchman.png', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:33:42', '61'),
+(343, 5, 330, NULL, '2025100221_CVC_2025.pdf', 'WBS  - WBS.pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:33:48', '61'),
 (344, 32, 330, NULL, '2025100221_TP_2025.png', 'onepunchman.png', NULL, 0, NULL, NULL, NULL, 0, '2025-10-28 02:33:51', NULL),
 (345, 35, 330, NULL, '2025100221_TH_2025.png', 'EXAM.png', NULL, 0, NULL, NULL, NULL, 0, '2025-10-28 02:33:56', NULL),
-(346, 1, 1, NULL, '2025100001_PSA_2025.pdf', 'MOM3.pdf', '75% OF ATTENDANCE IS NEEDED FOR TRANSFEREE', 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:34:30', '61'),
-(347, 3, 1, NULL, '2025100001_CGMC_2025.jpg', 'solo.jpg', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:34:38', '61'),
-(348, 2, 1, NULL, '2025100001_F138_2025.pdf', 'BENEFICIARY_PROFILE.pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:34:41', '61'),
-(349, 4, 1, NULL, '2025100001_CBGC_2025.png', 'onepunchman.png', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:34:44', '61'),
-(350, 32, 1, NULL, '2025100001_TP_2025.pdf', 'health_record.php (6).pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:34:46', '61'),
-(351, 5, 1, NULL, '2025100001_CVC_2025.pdf', 'CHAPTER 1.docx.pdf', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:34:51', '61'),
-(352, 35, 1, NULL, '2025100001_TH_2025.png', 'EXAM.png', NULL, 1, 'Documents Verified & ECAT', NULL, NULL, 0, '2025-10-28 02:34:57', '61');
+(346, 1, 1, 0, '2025100001_PSA_2025.pdf', 'MOM3.pdf', '75% OF ATTENDANCE IS NEEDED FOR TRANSFEREE', 1, 'Documents Verified & ECAT', NULL, 0, 0, '2025-10-28 02:34:30', '61'),
+(347, 3, 1, 0, '2025100001_CGMC_2025.jpg', 'solo.jpg', '0', 1, 'Documents Verified & ECAT', NULL, 0, 0, '2025-10-28 02:34:38', '61'),
+(348, 2, 1, 0, '2025100001_F138_2025.pdf', 'BENEFICIARY_PROFILE.pdf', 'Upload your Photo', 1, 'Documents Verified & ECAT', NULL, 0, 0, '2025-10-28 02:34:41', '61'),
+(349, 4, 1, 0, '2025100001_CBGC_2025.png', 'onepunchman.png', '0', 1, 'Documents Verified & ECAT', NULL, 0, 0, '2025-10-28 02:34:44', '61'),
+(350, 32, 1, 0, '2025100001_TP_2025.pdf', 'health_record.php (6).pdf', '0', 1, 'Documents Verified & ECAT', NULL, 0, 0, '2025-10-28 02:34:46', '61'),
+(351, 5, 1, 0, '2025100001_CVC_2025.pdf', 'CHAPTER 1.docx.pdf', '0', 1, 'Documents Verified & ECAT', NULL, 0, 0, '2025-10-28 02:34:51', '61'),
+(352, 35, 1, 0, '2025100001_TH_2025.png', 'EXAM.png', '0', 1, 'Documents Verified & ECAT', NULL, 0, 0, '2025-10-28 02:34:57', '61');
 
 -- --------------------------------------------------------
 
@@ -2512,7 +2515,7 @@ ALTER TABLE `medical_requirements`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1070;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1072;
 
 --
 -- AUTO_INCREMENT for table `person_status_table`

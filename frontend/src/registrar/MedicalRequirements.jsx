@@ -39,8 +39,8 @@ import LoadingOverlay from "../components/LoadingOverlay";
 
 
 const tabs1 = [
-    { label: "Medical Applicant List", to: "/medical_applicant_list", icon: <ListAltIcon /> },
-    { label: "Applicant Form", to: "/medical_dashboard1", icon: <HowToRegIcon /> },
+    { label: "Medical Student List", to: "/medical_Student_list", icon: <ListAltIcon /> },
+    { label: "Student Form", to: "/medical_dashboard1", icon: <HowToRegIcon /> },
     { label: "Submitted Documents", to: "/medical_requirements", icon: <UploadFileIcon /> }, // updated icon
     { label: "Medical History", to: "/medical_requirements_form", icon: <PersonIcon /> },
     { label: "Dental Assessment", to: "/dental_assessment", icon: <DescriptionIcon /> },
@@ -52,7 +52,7 @@ const remarksOptions = [
     "75% OF ATTENDANCE IS NEEDED FOR TRANSFEREE",
     "Attachments were blurry",
     "Birth Certificate with Sarical Surname",
-    "Card No Name/Details of the Applicant",
+    "Card No Name/Details of the Student",
     "Conflict of Lastname with birth certificate",
     "Conflict of Lastname with birth certificate. Please Check",
     "Conflict of name on the document submitted",
@@ -122,9 +122,9 @@ const remarksOptions = [
     "Temporarily accepted. Please Submit PSA copy of birth certificate",
     "Temporarily accepted. Submit original document upon enrollment.",
     "The file cannot be opened",
-    "The form 138 document did not contain the name of the applicant",
-    "The uploaded did not match the name and gender of the applicant (Abela, Mary Jane)",
-    "The uploaded file did not match with the name of applicant (Shane Bamba)",
+    "The form 138 document did not contain the name of the Student",
+    "The uploaded did not match the name and gender of the Student (Abela, Mary Jane)",
+    "The uploaded file did not match with the name of Student (Shane Bamba)",
     "The uploaded file did not match with the required document",
     "The Vaccine Card you uploaded does not show your name.",
     "TOR should be based in the new curriculum for transferee",
@@ -174,14 +174,14 @@ const MedicalRequirements = () => {
 
     const fetchByPersonId = async (personID) => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/person_with_applicant/${personID}`);
+            const res = await axios.get(`http://localhost:5000/api/student_data_as_applicant/${personID}`);
             setPerson(res.data);
             setSelectedPerson(res.data);
-            if (res.data?.applicant_number) {
-                await fetchUploadsByApplicantNumber(res.data.applicant_number);
+            if (res.data?.student_number) {
+                await fetchUploadsByStudentNumber(res.data.student_number);
             }
         } catch (err) {
-            console.error("❌ person_with_applicant failed:", err);
+            console.error("❌ person_with_Student failed:", err);
         }
     };
 
@@ -211,7 +211,7 @@ const MedicalRequirements = () => {
         first_name: "",
         middle_name: "",
         extension: "",
-        applicant_number: "",
+        student_number: "",
     });
     const [editingRemarkId, setEditingRemarkId] = useState(null);
     const [newRemarkMode, setNewRemarkMode] = useState({}); // { [upload_id]: true|false }
@@ -314,12 +314,12 @@ const MedicalRequirements = () => {
                 return;
             }
 
-            // fallback only if it's a fresh selection from Applicant List
+            // fallback only if it's a fresh selection from Student List
             const source = sessionStorage.getItem("admin_edit_person_id_source");
             const tsStr = sessionStorage.getItem("admin_edit_person_id_ts");
             const id = sessionStorage.getItem("admin_edit_person_id");
             const ts = tsStr ? parseInt(tsStr, 10) : 0;
-            const isFresh = source === "applicant_list" && Date.now() - ts < 5 * 60 * 1000;
+            const isFresh = source === "Student_list" && Date.now() - ts < 5 * 60 * 1000;
 
             if (id && isFresh) {
                 await fetchByPersonId(id);
@@ -377,16 +377,16 @@ const MedicalRequirements = () => {
 
 
 
-    const fetchUploadsByApplicantNumber = async (applicant_number) => {
-        if (!applicant_number) return;
+    const fetchUploadsByStudentNumber = async (student_number) => {
+        if (!student_number) return;
         try {
-            const res = await axios.get(`http://localhost:5000/uploads/by-applicant/${applicant_number}`);
+            const res = await axios.get(`http://localhost:5000/uploads/by-student/${student_number}`);
             setUploads(res.data);
 
 
         } catch (err) {
             console.error('Fetch uploads failed:', err);
-            console.log("Fetching for applicant number:", applicant_number);
+            console.log("Fetching for Student number:", student_number);
         }
     };
 
@@ -397,7 +397,7 @@ const MedicalRequirements = () => {
             return;
         }
         try {
-            const res = await axios.get(`http://localhost:5000/api/person_with_applicant/${personID}`);
+            const res = await axios.get(`http://localhost:5000/api/student_data_as_applicant/${personID}`);
             const safePerson = {
                 ...res.data,
                 document_status: res.data.document_status || "",
@@ -409,9 +409,9 @@ const MedicalRequirements = () => {
         }
     };
 
-    const fetchDocumentStatus = async (applicant_number) => {
+    const fetchDocumentStatus = async (student_number) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/document_status/${applicant_number}`);
+            const response = await axios.get(`http://localhost:5000/api/document_status/${student_number}`);
             setDocumentStatus(response.data.document_status);
             setPerson((prev) => ({
                 ...prev,
@@ -423,10 +423,10 @@ const MedicalRequirements = () => {
     };
 
     useEffect(() => {
-        if (person.applicant_number) {
-            fetchDocumentStatus(person.applicant_number); // <-- pass the param
+        if (person.student_number) {
+            fetchDocumentStatus(person.student_number); // <-- pass the param
         }
-    }, [person.applicant_number]);
+    }, [person.student_number]);
 
 
     useEffect(() => {
@@ -462,14 +462,14 @@ const MedicalRequirements = () => {
         if (explicitSelection) setExplicitSelection(false);
 
         const match = persons.find((p) =>
-            `${p.first_name} ${p.middle_name} ${p.last_name} ${p.emailAddress} ${p.applicant_number || ""}`
+            `${p.first_name} ${p.middle_name} ${p.last_name} ${p.emailAddress} ${p.student_number || ""}`
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase())
         );
 
         if (match) {
             setSelectedPerson(match);
-            fetchUploadsByApplicantNumber(match.applicant_number);
+            fetchUploadsByStudentNumber(match.student_number);
         } else {
             setSelectedPerson(null);
             setUploads([]);
@@ -490,7 +490,7 @@ const MedicalRequirements = () => {
 
     const fetchPersons = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/upload_documents');
+            const res = await axios.get('http://localhost:5000/api/student_upload_documents_data');
             setPersons(res.data);
         } catch (err) {
             console.error('Error fetching persons:', err);
@@ -501,7 +501,7 @@ const MedicalRequirements = () => {
         const remarks = remarksMap[uploadId] || "";
 
         try {
-            await axios.put(`http://localhost:5000/uploads/remarks/${uploadId}`, {
+            await axios.put(`http://localhost:5000/uploads/student/remarks/${uploadId}`, {
                 status: remarkValue,
                 remarks,
                 user_id: userID,
@@ -519,8 +519,8 @@ const MedicalRequirements = () => {
             setEditingRemarkId(null);
 
             // still fetch to keep in sync with backend
-            if (selectedPerson?.applicant_number) {
-                fetchUploadsByApplicantNumber(selectedPerson.applicant_number);
+            if (selectedPerson?.student_number) {
+                fetchUploadsByStudentNumber(selectedPerson.student_number);
             }
         } catch (err) {
             console.error("Error updating Status:", err);
@@ -533,7 +533,7 @@ const MedicalRequirements = () => {
 
         try {
             await axios.put(
-                `http://localhost:5000/api/document_status/${person.applicant_number}`,
+                `http://localhost:5000/api/document_status/${person.student_number}`,
                 {
                     document_status: newStatus,
                     user_id: localStorage.getItem("person_id"),
@@ -541,11 +541,11 @@ const MedicalRequirements = () => {
             );
 
             // ✅ Refresh evaluator and document status
-            await fetchDocumentStatus(person.applicant_number);
+            await fetchDocumentStatus(person.student_number);
 
             // ✅ Also refresh uploads list to update row values in the table
-            if (person.applicant_number) {
-                await fetchUploadsByApplicantNumber(person.applicant_number);
+            if (person.student_number) {
+                await fetchUploadsByStudentNumber(person.student_number);
             }
 
             console.log("Document status updated and UI refreshed!");
@@ -574,7 +574,7 @@ const MedicalRequirements = () => {
             formData.append("person_id", selectedPerson.person_id);
             formData.append("remarks", selectedFiles.remarks || "");
 
-            await axios.post("http://localhost:5000/api/upload", formData, {
+            await axios.post("http://localhost:5000/api/student/upload", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "x-person-id": localStorage.getItem("person_id"), // ✅ now inside headers
@@ -585,8 +585,8 @@ const MedicalRequirements = () => {
             showSnackbar("✅ Upload successful!", "success");
 
             setSelectedFiles({});
-            if (selectedPerson?.applicant_number) {
-                fetchUploadsByApplicantNumber(selectedPerson.applicant_number);
+            if (selectedPerson?.student_number) {
+                fetchUploadsByStudentNumber(selectedPerson.student_number);
             }
         } catch (error) {
             console.error("Upload failed:", error);
@@ -605,8 +605,8 @@ const MedicalRequirements = () => {
                 withCredentials: true,
             });
 
-            if (selectedPerson?.applicant_number) {
-                fetchUploadsByApplicantNumber(selectedPerson.applicant_number);
+            if (selectedPerson?.student_number) {
+                fetchUploadsByStudentNumber(selectedPerson.student_number);
             }
         } catch (err) {
             console.error('Delete error:', err);
@@ -628,11 +628,6 @@ const MedicalRequirements = () => {
             textTransform: 'none',
         };
 
-
-
-
-
-
         return (
             <TableRow key={doc.key}>
                 <TableCell sx={{ fontWeight: 'bold', width: '20%', border: "1px solid maroon" }}>{doc.label}</TableCell>
@@ -653,13 +648,13 @@ const MedicalRequirements = () => {
                                 onBlur={async () => {
                                     const finalRemark = (remarksMap[uploadId] || "").trim();
                                     if (finalRemark) {
-                                        await axios.put(`http://localhost:5000/uploads/remarks/${uploadId}`, {
+                                        await axios.put(`http://localhost:5000/uploads/student/remarks/${uploadId}`, {
                                             remarks: finalRemark,
                                             status: uploads.find((u) => u.upload_id === uploadId)?.status || "0",
                                             user_id: userID,
                                         });
-                                        if (selectedPerson?.applicant_number) {
-                                            await fetchUploadsByApplicantNumber(selectedPerson.applicant_number);
+                                        if (selectedPerson?.student_number) {
+                                            await fetchUploadsByStudentNumber(selectedPerson.student_number);
                                         }
                                     }
                                     setNewRemarkMode((prev) => ({ ...prev, [uploadId]: false }));
@@ -670,13 +665,13 @@ const MedicalRequirements = () => {
                                         e.preventDefault();
                                         const finalRemark = (remarksMap[uploadId] || "").trim();
                                         if (finalRemark) {
-                                            await axios.put(`http://localhost:5000/uploads/remarks/${uploadId}`, {
+                                            await axios.put(`http://localhost:5000/uploads/student/remarks/${uploadId}`, {
                                                 remarks: finalRemark,
                                                 status: uploads.find((u) => u.upload_id === uploadId)?.status || "0",
                                                 user_id: userID,
                                             });
-                                            if (selectedPerson?.applicant_number) {
-                                                await fetchUploadsByApplicantNumber(selectedPerson.applicant_number);
+                                            if (selectedPerson?.student_number) {
+                                                await fetchUploadsByStudentNumber(selectedPerson.student_number);
                                             }
                                         }
                                         setNewRemarkMode((prev) => ({ ...prev, [uploadId]: false }));
@@ -705,8 +700,8 @@ const MedicalRequirements = () => {
                                         status: uploads.find((u) => u.upload_id === uploadId)?.status || "0",
                                         user_id: userID,
                                     });
-                                    if (selectedPerson?.applicant_number) {
-                                        await fetchUploadsByApplicantNumber(selectedPerson.applicant_number);
+                                    if (selectedPerson?.student_number) {
+                                        await fetchUploadsByStudentNumber(selectedPerson.student_number);
                                     }
                                     setEditingRemarkId(null);
                                 }}
@@ -746,10 +741,6 @@ const MedicalRequirements = () => {
                         </Box>
                     )}
                 </TableCell>
-
-
-
-
 
                 <TableCell align="center" sx={{ width: '15%', border: "1px solid maroon" }}>
                     {uploaded ? (
@@ -820,8 +811,8 @@ const MedicalRequirements = () => {
                 </TableCell>
 
                 <TableCell style={{ border: "1px solid maroon" }}>
-                    {(selectedPerson?.applicant_number || person?.applicant_number)
-                        ? `[${selectedPerson?.applicant_number || person?.applicant_number}] ${(selectedPerson?.last_name || person?.last_name || "").toUpperCase()}, ${(selectedPerson?.first_name || person?.first_name || "").toUpperCase()} ${(selectedPerson?.middle_name || person?.middle_name || "").toUpperCase()} ${(selectedPerson?.extension || person?.extension || "").toUpperCase()}`
+                    {(selectedPerson?.student_number || person?.student_number)
+                        ? `[${selectedPerson?.student_number || person?.student_number}] ${(selectedPerson?.last_name || person?.last_name || "").toUpperCase()}, ${(selectedPerson?.first_name || person?.first_name || "").toUpperCase()} ${(selectedPerson?.middle_name || person?.middle_name || "").toUpperCase()} ${(selectedPerson?.extension || person?.extension || "").toUpperCase()}`
                         : ""}
                 </TableCell>
 
@@ -886,10 +877,6 @@ const MedicalRequirements = () => {
         );
     };
 
-
-
-
-    // Put this at the very bottom before the return 
     if (loading || hasAccess === null) {
         return <LoadingOverlay open={loading} message="Check Access" />;
     }
@@ -899,8 +886,6 @@ const MedicalRequirements = () => {
             <Unauthorized />
         );
     }
-
-
 
     return (
         <Box sx={{ height: 'calc(100vh - 150px)', overflowY: 'auto', paddingRight: 1 }}>
@@ -932,7 +917,7 @@ const MedicalRequirements = () => {
 
                     <TextField
                         variant="outlined"
-                        placeholder="Search Applicant Name / Email / Applicant ID"
+                        placeholder="Search Student Name / Email / Student ID"
                         size="small"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -990,25 +975,25 @@ const MedicalRequirements = () => {
                 </Box>
 
                 <br />
-                {/* Applicant ID and Name */}
+                {/* Student ID and Name */}
                 <TableContainer component={Paper} sx={{ width: '100%', border: "1px solid maroon" }}>
                     <Table>
                         <TableHead sx={{ backgroundColor: '#6D2323', }}>
                             <TableRow>
-                                {/* Left cell: Applicant ID */}
+                                {/* Left cell: Student ID */}
                                 <TableCell sx={{ color: 'white', fontSize: '20px', fontFamily: 'Arial Black', border: 'none' }}>
-                                    Applicant ID:&nbsp;
+                                    Student ID:&nbsp;
                                     <span style={{ fontFamily: "Arial", fontWeight: "normal", textDecoration: "underline" }}>
-                                        {selectedPerson?.applicant_number || person?.applicant_number || "N/A"}
+                                        {selectedPerson?.student_number || person?.student_number || "N/A"}
                                     </span>
                                 </TableCell>
 
-                                {/* Right cell: Applicant Name, right-aligned */}
+                                {/* Right cell: Student Name, right-aligned */}
                                 <TableCell
                                     align="right"
                                     sx={{ color: 'white', fontSize: '20px', fontFamily: 'Arial Black', border: 'none' }}
                                 >
-                                    Applicant Name:&nbsp;
+                                    Student Name:&nbsp;
                                     <span style={{ fontFamily: "Arial", fontWeight: "normal", textDecoration: "underline" }}>
                                         {(selectedPerson?.last_name || person?.last_name || "").toUpperCase()},
                                         &nbsp;{(selectedPerson?.first_name || person?.first_name || "").toUpperCase()}{" "}
@@ -1023,7 +1008,7 @@ const MedicalRequirements = () => {
 
 
                 <TableContainer component={Paper} sx={{ width: '100%', border: "2px solid maroon" }}>
-                    {/* SHS GWA and Height row below Applicant Name */}
+                    {/* SHS GWA and Height row below Student Name */}
                     <Box sx={{ px: 2, mb: 2, mt: 2 }}>
                         {/* SHS GWA Field */}
                         <Box sx={{ display: "flex", alignItems: "center", mb: 1, }}>
@@ -1137,7 +1122,7 @@ const MedicalRequirements = () => {
                                     <MenuItem value="ALS Passer">ALS (Alternative Learning System) Passer</MenuItem>
                                     <MenuItem value="Transferee">Transferee from other University/College</MenuItem>
                                     <MenuItem value="Cross Enrolee">Cross Enrolee Student</MenuItem>
-                                    <MenuItem value="Foreign Applicant">Foreign Applicant/Student</MenuItem>
+                                    <MenuItem value="Foreign Student">Foreign Student/Student</MenuItem>
                                     <MenuItem value="Baccalaureate Graduate">Baccalaureate Graduate</MenuItem>
                                     <MenuItem value="Master Degree Graduate">Master Degree Graduate</MenuItem>
                                 </TextField>
