@@ -16,8 +16,30 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ExamPermit from "../applicant/ExamPermit";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ClassIcon from "@mui/icons-material/Class";
+import SearchIcon from "@mui/icons-material/Search";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import GradeIcon from "@mui/icons-material/Grade";
 
 const ReadmissionDashboard2 = () => {
+    const stepsData = [
+        { label: "Applicant List", to: "/super_admin_applicant_list", icon: <ListAltIcon /> },
+        { label: "Applicant Form", to: "/readmission_dashboard1", icon: <PersonAddIcon /> },
+        { label: "Class List", to: "/class_roster", icon: <ClassIcon /> },
+        { label: "Search Certificate of Registration", to: "/search_cor", icon: <SearchIcon /> },
+        { label: "Student Numbering", to: "/student_numbering", icon: <ConfirmationNumberIcon /> },
+        { label: "Report of Grades", to: "/report_of_grades", icon: <GradeIcon /> },
+        { label: "Transcript of Records", to: "/transcript_of_records", icon: <SchoolIcon /> },
+    ];
+
+    const [currentStep, setCurrentStep] = useState(1);
+    const [visitedSteps, setVisitedSteps] = useState(Array(stepsData.length).fill(false));
+
+
+
+
     const navigate = useNavigate();
     const [userID, setUserID] = useState("");
     const [user, setUser] = useState("");
@@ -140,7 +162,39 @@ const ReadmissionDashboard2 = () => {
 
 
 
-    
+    useEffect(() => {
+        let consumedFlag = false;
+
+        const tryLoad = async () => {
+            if (queryPersonId) {
+                await fetchByPersonId(queryPersonId);
+                setExplicitSelection(true);
+                consumedFlag = true;
+                return;
+            }
+
+            // fallback only if it's a fresh selection from Applicant List
+            const source = sessionStorage.getItem("admin_edit_person_id_source");
+            const tsStr = sessionStorage.getItem("admin_edit_person_id_ts");
+            const id = sessionStorage.getItem("admin_edit_person_id");
+            const ts = tsStr ? parseInt(tsStr, 10) : 0;
+            const isFresh = source === "applicant_list" && Date.now() - ts < 5 * 60 * 1000;
+
+            if (id && isFresh) {
+                await fetchByPersonId(id);
+                setExplicitSelection(true);
+                consumedFlag = true;
+            }
+        };
+
+        tryLoad().finally(() => {
+            // consume the freshness so it won't auto-load again later
+            if (consumedFlag) {
+                sessionStorage.removeItem("admin_edit_person_id_source");
+                sessionStorage.removeItem("admin_edit_person_id_ts");
+            }
+        });
+    }, [queryPersonId]);
 
     const [activeStep, setActiveStep] = useState(1);
     const [clickedSteps, setClickedSteps] = useState([]);
@@ -212,14 +266,88 @@ const ReadmissionDashboard2 = () => {
 
 
 
+    // ✅ Safe handleBlur for SuperAdmin — updates correct applicant only
     const handleBlur = async () => {
-        try {
-            await axios.put(`http://localhost:5000/api/enrollment/person/${userID}`, person);
-            console.log("✅ Auto-saved (on blur) to ENROLLMENT DB3");
-        } catch (err) {
-            console.error("❌ Auto-save failed (on blur):", err);
+      try {
+        // ✅ Determine correct applicant/person_id
+        const targetId = selectedPerson?.person_id || queryPersonId || person.person_id;
+        if (!targetId) {
+          console.warn("⚠️ No valid applicant ID found — skipping update.");
+          return;
         }
+  
+        const allowedFields = [
+          "person_id", "profile_img", "campus", "academicProgram", "classifiedAs", "applyingAs",
+          "program", "program2", "program3", "yearLevel",
+          "last_name", "first_name", "middle_name", "extension", "nickname",
+          "height", "weight", "lrnNumber", "nolrnNumber", "gender",
+          "pwdMember", "pwdType", "pwdId",
+          "birthOfDate", "age", "birthPlace", "languageDialectSpoken",
+          "citizenship", "religion", "civilStatus", "tribeEthnicGroup",
+          "cellphoneNumber", "emailAddress",
+          "presentStreet", "presentBarangay", "presentZipCode", "presentRegion",
+          "presentProvince", "presentMunicipality", "presentDswdHouseholdNumber",
+          "sameAsPresentAddress",
+          "permanentStreet", "permanentBarangay", "permanentZipCode",
+          "permanentRegion", "permanentProvince", "permanentMunicipality",
+          "permanentDswdHouseholdNumber",
+          "solo_parent",
+          "father_deceased", "father_family_name", "father_given_name", "father_middle_name",
+          "father_ext", "father_nickname", "father_education", "father_education_level",
+          "father_last_school", "father_course", "father_year_graduated", "father_school_address",
+          "father_contact", "father_occupation", "father_employer", "father_income", "father_email",
+          "mother_deceased", "mother_family_name", "mother_given_name", "mother_middle_name",
+          "mother_ext", "mother_nickname", "mother_education", "mother_education_level",
+          "mother_last_school", "mother_course", "mother_year_graduated", "mother_school_address",
+          "mother_contact", "mother_occupation", "mother_employer", "mother_income", "mother_email",
+          "guardian", "guardian_family_name", "guardian_given_name", "guardian_middle_name",
+          "guardian_ext", "guardian_nickname", "guardian_address", "guardian_contact", "guardian_email",
+          "annual_income",
+          "schoolLevel", "schoolLastAttended", "schoolAddress", "courseProgram",
+          "honor", "generalAverage", "yearGraduated",
+          "schoolLevel1", "schoolLastAttended1", "schoolAddress1", "courseProgram1",
+          "honor1", "generalAverage1", "yearGraduated1",
+          "strand",
+          // 🩺 Health and medical
+          "cough", "colds", "fever", "asthma", "faintingSpells", "heartDisease",
+          "tuberculosis", "frequentHeadaches", "hernia", "chronicCough", "headNeckInjury",
+          "hiv", "highBloodPressure", "diabetesMellitus", "allergies", "cancer",
+          "smokingCigarette", "alcoholDrinking", "hospitalized", "hospitalizationDetails",
+          "medications",
+          // 🧬 Covid / Vaccination
+          "hadCovid", "covidDate",
+          "vaccine1Brand", "vaccine1Date", "vaccine2Brand", "vaccine2Date",
+          "booster1Brand", "booster1Date", "booster2Brand", "booster2Date",
+          // 🧪 Lab results / medical findings
+          "chestXray", "cbc", "urinalysis", "otherworkups",
+          // 🧍 Additional fields
+          "symptomsToday", "remarks",
+          // ✅ Agreement / Meta
+          "termsOfAgreement", "created_at", "current_step"
+        ];
+  
+        // ✅ Clean payload before sending
+        const cleanedData = Object.fromEntries(
+          Object.entries(person).filter(([key]) => allowedFields.includes(key))
+        );
+  
+        if (Object.keys(cleanedData).length === 0) {
+          console.warn("⚠️ No valid fields to update — skipping blur save.");
+          return;
+        }
+  
+        // ✅ Execute safe update
+        await axios.put(`http://localhost:5000/api/person/${targetId}`, cleanedData);
+        console.log(`💾 Auto-saved (on blur) for person_id: ${targetId}`);
+      } catch (err) {
+        console.error("❌ Auto-save (on blur) failed:", {
+          message: err.message,
+          status: err.response?.status,
+          details: err.response?.data || err,
+        });
+      }
     };
+  
 
 
     const [isFatherDeceased, setIsFatherDeceased] = useState(false);
@@ -397,6 +525,79 @@ const ReadmissionDashboard2 = () => {
             </Box>
 
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+            <br />
+
+
+
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    flexWrap: "nowrap", // prevent wrapping
+                    width: "100%",
+                    mt: 3,
+
+                }}
+            >
+                {stepsData.map((step, index) => (
+                    <React.Fragment key={index}>
+                        {/* Step Card */}
+                        <Card
+                            onClick={() => handleNavigateStep(index, step.to)}
+                            sx={{
+                                flex: `1 1 ${100 / stepsData.length}%`, // evenly divide width
+                                height: 120,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                                borderRadius: 2,
+                                border: "2px solid #6D2323",
+                                backgroundColor: currentStep === index ? "#6D2323" : "#E8C999",
+                                color: currentStep === index ? "#fff" : "#000",
+                                boxShadow:
+                                    currentStep === index
+                                        ? "0px 4px 10px rgba(0,0,0,0.3)"
+                                        : "0px 2px 6px rgba(0,0,0,0.15)",
+                                transition: "0.3s ease",
+                                "&:hover": {
+                                    backgroundColor: currentStep === index ? "#5a1c1c" : "#f5d98f",
+                                },
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <Box sx={{ fontSize: 40, mb: 1 }}>{step.icon}</Box>
+                                <Typography
+                                    sx={{
+                                        fontSize: 14,
+                                        fontWeight: "bold",
+                                        textAlign: "center",
+                                    }}
+                                >
+                                    {step.label}
+                                </Typography>
+                            </Box>
+                        </Card>
+
+                        {/* Spacer (line gap between steps) */}
+                        {index < stepsData.length - 1 && (
+                            <Box
+                                sx={{
+                                    flex: 0.05,
+                                    mx: 1, // spacing between cards
+                                }}
+                            />
+                        )}
+                    </React.Fragment>
+                ))}
+            </Box>
+
             <br />
 
 
@@ -660,6 +861,7 @@ const ReadmissionDashboard2 = () => {
                             {/* Solo Parent Checkbox */}
                             <Box marginTop="10px" display="flex" alignItems="center" gap={1}>
                                 <Checkbox
+                                disabled
                                     name="solo_parent"
                                     checked={person.solo_parent === 1}
                                     onChange={(e) => {
@@ -1751,7 +1953,7 @@ const ReadmissionDashboard2 = () => {
                             <Button
                                 variant="contained"
                                 onClick={() => {
-                                    handleUpdate();
+                                  
                                     navigate("/readmission_dashboard3");
                                 }}
                                 endIcon={

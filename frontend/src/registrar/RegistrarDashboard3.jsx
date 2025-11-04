@@ -240,7 +240,7 @@ const RegistrarDashboard3 = () => {
   };
 
 
-
+  // ✅ Safe handleBlur for SuperAdmin — updates correct applicant only
   const handleBlur = async () => {
     try {
       // ✅ Determine correct applicant/person_id
@@ -321,8 +321,6 @@ const RegistrarDashboard3 = () => {
       });
     }
   };
-
-
 
   // Do not alter
   const handleUpdate = async (updatedData) => {
@@ -1343,7 +1341,7 @@ const RegistrarDashboard3 = () => {
                             <Button
                                 variant="contained"
                                 onClick={() => {
-                                    handleUpdate();
+                                  
                                     navigate("/registrar_dashboard4");
                                 }}
                                 endIcon={

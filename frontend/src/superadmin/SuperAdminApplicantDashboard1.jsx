@@ -2531,14 +2531,14 @@ const SuperAdminApplicantDashboard1 = () => {
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    name="same_as_present_address"
-                                    checked={person.same_as_present_address === 1}
+                                    name="sameAsPresentAddress"
+                                    checked={person.sameAsPresentAddress === 1}
                                     onChange={(e) => {
                                         const checked = e.target.checked;
 
                                         const updatedPerson = {
                                             ...person,
-                                            same_as_present_address: checked ? 1 : 0,
+                                            sameAsPresentAddress: checked ? 1 : 0,
                                         };
 
                                         if (checked) {

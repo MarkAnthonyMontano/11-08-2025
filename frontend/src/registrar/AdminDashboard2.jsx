@@ -272,64 +272,6 @@ const AdminDashboard2 = () => {
 
   const [errors, setErrors] = useState({});
 
-  const isFormValid = () => {
-    const requiredFields = [];
-
-    // If father is NOT deceased, require father fields:
-    if (person.father_deceased !== 1) {
-      requiredFields.push(
-        "father_family_name", "father_given_name", "father_middle_name", "father_nickname",
-        "father_contact", "father_occupation", "father_employer", "father_income", "father_email"
-      );
-
-      // but only require education details if father_education !== 1
-      if (person.father_education !== 1) {
-        requiredFields.push(
-          "father_education_level", "father_last_school", "father_course", "father_year_graduated", "father_school_address"
-        );
-      }
-    }
-
-    // If mother is NOT deceased, require mother fields:
-    if (person.mother_deceased !== 1) {
-      requiredFields.push(
-        "mother_family_name", "mother_given_name", "mother_middle_name", "mother_nickname",
-        "mother_contact", "mother_occupation", "mother_employer", "mother_income", "mother_email"
-      );
-
-      // only require education details if mother_education !== 1
-      if (person.mother_education !== 1) {
-        requiredFields.push(
-          "mother_education_level", "mother_last_school", "mother_course", "mother_year_graduated", "mother_school_address"
-        );
-      }
-    }
-
-    // Guardian fields always required:
-    requiredFields.push(
-      "guardian", "guardian_family_name", "guardian_given_name", "guardian_middle_name",
-      "guardian_nickname", "guardian_address", "guardian_contact"
-    );
-
-    // Annual income always required:
-    requiredFields.push("annual_income");
-
-    let newErrors = {};
-    let isValid = true;
-
-    requiredFields.forEach((field) => {
-      const value = person[field];
-      const stringValue = value?.toString().trim();
-
-      if (!stringValue) {
-        newErrors[field] = true;
-        isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    return isValid;
-  };
 
    const handleUpdate = async (updatedData) => {
          if (!person) return;
@@ -453,87 +395,87 @@ const AdminDashboard2 = () => {
  
  
      // ✅ Safe handleBlur for SuperAdmin — updates correct applicant only
-     const handleBlur = async () => {
-         try {
-             // ✅ Determine correct applicant/person_id
-             const targetId = selectedPerson?.person_id || queryPersonId || person.person_id;
-             if (!targetId) {
-                 console.warn("⚠️ No valid applicant ID found — skipping update.");
-                 return;
-             }
- 
-             const allowedFields = [
-                 "person_id", "profile_img", "campus", "academicProgram", "classifiedAs", "applyingAs",
-                 "program", "program2", "program3", "yearLevel",
-                 "last_name", "first_name", "middle_name", "extension", "nickname",
-                 "height", "weight", "lrnNumber", "nolrnNumber", "gender",
-                 "pwdMember", "pwdType", "pwdId",
-                 "birthOfDate", "age", "birthPlace", "languageDialectSpoken",
-                 "citizenship", "religion", "civilStatus", "tribeEthnicGroup",
-                 "cellphoneNumber", "emailAddress",
-                 "presentStreet", "presentBarangay", "presentZipCode", "presentRegion",
-                 "presentProvince", "presentMunicipality", "presentDswdHouseholdNumber",
-                 "sameAsPresentAddress",
-                 "permanentStreet", "permanentBarangay", "permanentZipCode",
-                 "permanentRegion", "permanentProvince", "permanentMunicipality",
-                 "permanentDswdHouseholdNumber",
-                 "solo_parent",
-                 "father_deceased", "father_family_name", "father_given_name", "father_middle_name",
-                 "father_ext", "father_nickname", "father_education", "father_education_level",
-                 "father_last_school", "father_course", "father_year_graduated", "father_school_address",
-                 "father_contact", "father_occupation", "father_employer", "father_income", "father_email",
-                 "mother_deceased", "mother_family_name", "mother_given_name", "mother_middle_name",
-                 "mother_ext", "mother_nickname", "mother_education", "mother_education_level",
-                 "mother_last_school", "mother_course", "mother_year_graduated", "mother_school_address",
-                 "mother_contact", "mother_occupation", "mother_employer", "mother_income", "mother_email",
-                 "guardian", "guardian_family_name", "guardian_given_name", "guardian_middle_name",
-                 "guardian_ext", "guardian_nickname", "guardian_address", "guardian_contact", "guardian_email",
-                 "annual_income",
-                 "schoolLevel", "schoolLastAttended", "schoolAddress", "courseProgram",
-                 "honor", "generalAverage", "yearGraduated",
-                 "schoolLevel1", "schoolLastAttended1", "schoolAddress1", "courseProgram1",
-                 "honor1", "generalAverage1", "yearGraduated1",
-                 "strand",
-                 // 🩺 Health and medical
-                 "cough", "colds", "fever", "asthma", "faintingSpells", "heartDisease",
-                 "tuberculosis", "frequentHeadaches", "hernia", "chronicCough", "headNeckInjury",
-                 "hiv", "highBloodPressure", "diabetesMellitus", "allergies", "cancer",
-                 "smokingCigarette", "alcoholDrinking", "hospitalized", "hospitalizationDetails",
-                 "medications",
-                 // 🧬 Covid / Vaccination
-                 "hadCovid", "covidDate",
-                 "vaccine1Brand", "vaccine1Date", "vaccine2Brand", "vaccine2Date",
-                 "booster1Brand", "booster1Date", "booster2Brand", "booster2Date",
-                 // 🧪 Lab results / medical findings
-                 "chestXray", "cbc", "urinalysis", "otherworkups",
-                 // 🧍 Additional fields
-                 "symptomsToday", "remarks",
-                 // ✅ Agreement / Meta
-                 "termsOfAgreement", "created_at", "current_step"
-             ];
- 
-             // ✅ Clean payload before sending
-             const cleanedData = Object.fromEntries(
-                 Object.entries(person).filter(([key]) => allowedFields.includes(key))
-             );
- 
-             if (Object.keys(cleanedData).length === 0) {
-                 console.warn("⚠️ No valid fields to update — skipping blur save.");
-                 return;
-             }
- 
-             // ✅ Execute safe update
-             await axios.put(`http://localhost:5000/api/person/${targetId}`, cleanedData);
-             console.log(`💾 Auto-saved (on blur) for person_id: ${targetId}`);
-         } catch (err) {
-             console.error("❌ Auto-save (on blur) failed:", {
-                 message: err.message,
-                 status: err.response?.status,
-                 details: err.response?.data || err,
-             });
-         }
-     };
- 
+        const handleBlur = async () => {
+            try {
+                // ✅ Determine correct applicant/person_id
+                const targetId = selectedPerson?.person_id || queryPersonId || person.person_id;
+                if (!targetId) {
+                    console.warn("⚠️ No valid applicant ID found — skipping update.");
+                    return;
+                }
+    
+                const allowedFields = [
+                    "person_id", "profile_img", "campus", "academicProgram", "classifiedAs", "applyingAs",
+                    "program", "program2", "program3", "yearLevel",
+                    "last_name", "first_name", "middle_name", "extension", "nickname",
+                    "height", "weight", "lrnNumber", "nolrnNumber", "gender",
+                    "pwdMember", "pwdType", "pwdId",
+                    "birthOfDate", "age", "birthPlace", "languageDialectSpoken",
+                    "citizenship", "religion", "civilStatus", "tribeEthnicGroup",
+                    "cellphoneNumber", "emailAddress",
+                    "presentStreet", "presentBarangay", "presentZipCode", "presentRegion",
+                    "presentProvince", "presentMunicipality", "presentDswdHouseholdNumber",
+                    "sameAsPresentAddress",
+                    "permanentStreet", "permanentBarangay", "permanentZipCode",
+                    "permanentRegion", "permanentProvince", "permanentMunicipality",
+                    "permanentDswdHouseholdNumber",
+                    "solo_parent",
+                    "father_deceased", "father_family_name", "father_given_name", "father_middle_name",
+                    "father_ext", "father_nickname", "father_education", "father_education_level",
+                    "father_last_school", "father_course", "father_year_graduated", "father_school_address",
+                    "father_contact", "father_occupation", "father_employer", "father_income", "father_email",
+                    "mother_deceased", "mother_family_name", "mother_given_name", "mother_middle_name",
+                    "mother_ext", "mother_nickname", "mother_education", "mother_education_level",
+                    "mother_last_school", "mother_course", "mother_year_graduated", "mother_school_address",
+                    "mother_contact", "mother_occupation", "mother_employer", "mother_income", "mother_email",
+                    "guardian", "guardian_family_name", "guardian_given_name", "guardian_middle_name",
+                    "guardian_ext", "guardian_nickname", "guardian_address", "guardian_contact", "guardian_email",
+                    "annual_income",
+                    "schoolLevel", "schoolLastAttended", "schoolAddress", "courseProgram",
+                    "honor", "generalAverage", "yearGraduated",
+                    "schoolLevel1", "schoolLastAttended1", "schoolAddress1", "courseProgram1",
+                    "honor1", "generalAverage1", "yearGraduated1",
+                    "strand",
+                    // 🩺 Health and medical
+                    "cough", "colds", "fever", "asthma", "faintingSpells", "heartDisease",
+                    "tuberculosis", "frequentHeadaches", "hernia", "chronicCough", "headNeckInjury",
+                    "hiv", "highBloodPressure", "diabetesMellitus", "allergies", "cancer",
+                    "smokingCigarette", "alcoholDrinking", "hospitalized", "hospitalizationDetails",
+                    "medications",
+                    // 🧬 Covid / Vaccination
+                    "hadCovid", "covidDate",
+                    "vaccine1Brand", "vaccine1Date", "vaccine2Brand", "vaccine2Date",
+                    "booster1Brand", "booster1Date", "booster2Brand", "booster2Date",
+                    // 🧪 Lab results / medical findings
+                    "chestXray", "cbc", "urinalysis", "otherworkups",
+                    // 🧍 Additional fields
+                    "symptomsToday", "remarks",
+                    // ✅ Agreement / Meta
+                    "termsOfAgreement", "created_at", "current_step"
+                ];
+    
+                // ✅ Clean payload before sending
+                const cleanedData = Object.fromEntries(
+                    Object.entries(person).filter(([key]) => allowedFields.includes(key))
+                );
+    
+                if (Object.keys(cleanedData).length === 0) {
+                    console.warn("⚠️ No valid fields to update — skipping blur save.");
+                    return;
+                }
+    
+                // ✅ Execute safe update
+                await axios.put(`http://localhost:5000/api/person/${targetId}`, cleanedData);
+                console.log(`💾 Auto-saved (on blur) for person_id: ${targetId}`);
+            } catch (err) {
+                console.error("❌ Auto-save (on blur) failed:", {
+                    message: err.message,
+                    status: err.response?.status,
+                    details: err.response?.data || err,
+                });
+            }
+        };
+    
  
 
   const [soloParentChoice, setSoloParentChoice] = useState("");
@@ -2140,7 +2082,7 @@ const AdminDashboard2 = () => {
               <Button
                 variant="contained"
                 onClick={() => {
-                  handleUpdate();
+                 
                   navigate("/admin_dashboard3");
                 }}
                 endIcon={

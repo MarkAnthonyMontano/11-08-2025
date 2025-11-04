@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 03, 2025 at 03:56 PM
+-- Generation Time: Nov 04, 2025 at 12:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -66,95 +66,96 @@ CREATE TABLE `course_table` (
   `course_code` varchar(100) DEFAULT NULL,
   `course_description` varchar(255) DEFAULT NULL,
   `course_unit` int(11) DEFAULT NULL,
-  `lab_unit` int(11) DEFAULT NULL
+  `lab_unit` int(11) DEFAULT NULL,
+  `value` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `course_table`
 --
 
-INSERT INTO `course_table` (`course_id`, `course_code`, `course_description`, `course_unit`, `lab_unit`) VALUES
-(1, 'GEREADPH', 'Readings in Philippine History', 5, 0),
-(2, 'GEUNDETS', 'Understanding the Self', 3, 0),
-(3, 'GEARTAPP', 'Art Appreciation', 3, 0),
-(4, 'GEPURPCO', 'Purposive Communication', 3, 0),
-(5, 'GEKOMFIL', 'Kontekstwalisadong Komunikasyon sa Filipino', 3, 0),
-(6, 'INTCOMLC', 'Introduction to Computing (Lecture)', 2, 0),
-(7, 'INTCOMLB', 'Introduction to Computing (Laboratory)', 0, 1),
-(8, 'FPROGLEC', 'Computer Programming 1 (Lecture)', 2, 0),
-(9, 'FPROGLAB', 'Computer Programming 1 (Laboratory)', 0, 1),
-(10, 'GEPEMOVE', 'Movement Enhancement', 2, 0),
-(11, 'NSTPCTS1', 'National Service Training Program 1', 3, 0),
-(12, 'GEMATHMW', 'Mathematics in the Modern World', 3, 0),
-(13, 'GESCIETS', 'Science, Technology and Society', 3, 0),
-(14, 'GEFILDIS', 'Filipino sa Iba’t-Ibang Disiplina', 3, 0),
-(15, 'GEPANIPI', 'Panitikan sa Pilipinas', 3, 0),
-(16, 'IPROGLEC', 'Computer Programming 2 (Lecture)', 2, 0),
-(17, 'IPROGLAB', 'Computer Programming 2 (Laboratory)', 0, 1),
-(18, 'DISCMATH', 'Discrete Mathematics', 3, 0),
-(19, 'DBMSLEC1', 'Database Management System 1 (Lecture)', 2, 0),
-(20, 'DBMSLAB1', 'Database Management System 1 (Laboratory)', 0, 1),
-(21, 'GEPEFITE', 'Fitness Exercise', 2, 0),
-(22, 'NSTPCTS2', 'National Service Training Program 2', 3, 0),
-(23, 'GEETHICS', 'Ethics', 3, 0),
-(24, 'DSALGLEC', 'Data Structures and Algorithm 1 (Lecture)', 2, 0),
-(25, 'DSALGLAB', 'Data Structures and Algorithm 1 (Laboratory)', 0, 1),
-(26, 'INFMGTLC', 'Information Management (Lecture)', 2, 0),
-(27, 'INFMGTLB', 'Information Management (Laboratory)', 0, 1),
-(28, 'PTECHLEC', 'Platform Technologies (Lecture)', 2, 0),
-(29, 'PTECHLAB', 'Platform Technologies (Laboratory)', 0, 1),
-(30, 'WEBDVLC1', 'Web Development 1 (Lecture)', 2, 0),
-(31, 'WEBDVLB1', 'Web Development 1 (Laboratory)', 0, 1),
-(32, 'BUSANALY', 'Business Analytics', 3, 0),
-(33, 'GEPEHEF1', 'Physical Activity Towards Health and Fitness 1', 2, 0),
-(34, 'GEELECCP', 'Communicative Proficiency in Business Writing', 3, 0),
-(35, 'DBMSLEC2', 'Database Management System 2 (Lecture)', 2, 0),
-(36, 'DBMSLAB2', 'Database Management System 2 (Laboratory)', 0, 1),
-(37, 'INTHCILC', 'Introduction to Human-Computer Interaction (Lecture)', 2, 0),
-(38, 'INTHCILB', 'Introduction to Human-Computer Interaction (Laboratory)', 0, 1),
-(39, 'NETWKLC1', 'Networking 1 (Lecture)', 2, 0),
-(40, 'NETWKLB1', 'Networking 1 (Laboratory)', 0, 1),
-(41, 'WEBDVLC2', 'Web Development 2 (Lecture)', 2, 0),
-(42, 'WEBDVLB2', 'Web Development 2 (Laboratory)', 0, 1),
-(43, 'IPATLEC1', 'Integrative Programming and Technologies 1 (Lecture)', 2, 0),
-(44, 'IPATLAB1', 'Integrative Programming and Technologies 1 (Laboratory)', 0, 1),
-(45, 'GEPEHEF2', 'Physical Activity Towards Health and Fitness 2', 2, 0),
-(46, 'GEELECDS', 'Practical Data Science', 3, 0),
-(47, 'WEBDVLC3', 'Web Development 3 (Lecture)', 2, 0),
-(48, 'WEBDVLB3', 'Web Development 3 (Laboratory)', 0, 1),
-(49, 'MMDIALEC', 'Multimedia (Lecture)', 2, 0),
-(50, 'MMDIALAB', 'Multimedia (Laboratory)', 0, 1),
-(51, 'SYSARCH1', 'Systems Integration and Architecture 1 (Lecture)', 2, 0),
-(52, 'SYSARLB1', 'Systems Integration and Architecture 1 (Laboratory)', 0, 1),
-(53, 'APDEVLEC', 'Application Development and Emerging Tech (Lecture)', 2, 0),
-(54, 'APDEVLAB', 'Application Development and Emerging Tech (Lab)', 0, 1),
-(55, 'NETWKLC2', 'Networking 2 (Lecture)', 2, 0),
-(56, 'NETWKLB2', 'Networking 2 (Laboratory)', 0, 1),
-(57, 'GELIFEWR', 'Life and Works of Rizal', 3, 0),
-(58, 'GEELECES', 'Environmental Science', 3, 0),
-(59, 'QUANMETH', 'Quantitative Methods', 3, 0),
-(60, 'ITTHESI1', 'Research 1', 3, 0),
-(61, 'MOBAPLEC', 'Mobile App Development (Lecture)', 2, 0),
-(62, 'MOBAPLAB', 'Mobile App Development (Laboratory)', 0, 1),
-(63, 'OOPRGLEC', 'Object-Oriented Programming (Lecture)', 2, 0),
-(64, 'OOPRGLAB', 'Object-Oriented Programming (Laboratory)', 0, 1),
-(65, 'IAASLEC1', 'Information Assurance and Security 1 (Lecture)', 2, 0),
-(66, 'IAASLAB1', 'Information Assurance and Security 1 (Laboratory)', 0, 1),
-(67, 'GECONTWO', 'Contemporary World', 3, 0),
-(68, 'SYSARCH2', 'Systems Integration and Architecture 2 (Lecture)', 2, 0),
-(69, 'SYSARLB2', 'Systems Integration and Architecture 2 (Laboratory)', 0, 1),
-(70, 'ITTHESI2', 'Research 2 (Lecture)', 2, 0),
-(71, 'ITTHESL2', 'Research 2 (Laboratory)', 0, 1),
-(72, 'IAASLEC2', 'Information Assurance and Security 2 (Lecture)', 2, 0),
-(73, 'IAASLAB2', 'Information Assurance and Security 2 (Laboratory)', 0, 1),
-(74, 'SYSADMLC', 'Systems Administration and Maintenance (Lecture)', 2, 0),
-(75, 'SYSADMLB', 'Systems Administration and Maintenance (Laboratory)', 0, 1),
-(76, 'SPISSUES', 'Social and Professional Issues', 3, 0),
-(77, 'ITINTERN', 'Practicum / Internship', 10, 0),
-(78, 'GELIFEWR', 'Life And Work of Rizal', 2, 0),
-(79, 'GELIFEWR', 'Life And Work of Rizal', 2, 0),
-(80, 'DATANALY', 'Data Analytics ', 3, 0),
-(81, 'ITTHESIS', 'THESIS 2', 2, 1);
+INSERT INTO `course_table` (`course_id`, `course_code`, `course_description`, `course_unit`, `lab_unit`, `value`) VALUES
+(1, 'GEREADPH', 'Readings in Philippine History', 5, 0, NULL),
+(2, 'GEUNDETS', 'Understanding the Self', 3, 0, NULL),
+(3, 'GEARTAPP', 'Art Appreciation', 3, 0, NULL),
+(4, 'GEPURPCO', 'Purposive Communication', 3, 0, NULL),
+(5, 'GEKOMFIL', 'Kontekstwalisadong Komunikasyon sa Filipino', 3, 0, NULL),
+(6, 'INTCOMLC', 'Introduction to Computing (Lecture)', 2, 0, NULL),
+(7, 'INTCOMLB', 'Introduction to Computing (Laboratory)', 0, 1, NULL),
+(8, 'FPROGLEC', 'Computer Programming 1 (Lecture)', 2, 0, NULL),
+(9, 'FPROGLAB', 'Computer Programming 1 (Laboratory)', 0, 1, NULL),
+(10, 'GEPEMOVE', 'Movement Enhancement', 2, 0, NULL),
+(11, 'NSTPCTS1', 'National Service Training Program 1', 3, 0, NULL),
+(12, 'GEMATHMW', 'Mathematics in the Modern World', 3, 0, NULL),
+(13, 'GESCIETS', 'Science, Technology and Society', 3, 0, NULL),
+(14, 'GEFILDIS', 'Filipino sa Iba’t-Ibang Disiplina', 3, 0, NULL),
+(15, 'GEPANIPI', 'Panitikan sa Pilipinas', 3, 0, NULL),
+(16, 'IPROGLEC', 'Computer Programming 2 (Lecture)', 2, 0, NULL),
+(17, 'IPROGLAB', 'Computer Programming 2 (Laboratory)', 0, 1, NULL),
+(18, 'DISCMATH', 'Discrete Mathematics', 3, 0, NULL),
+(19, 'DBMSLEC1', 'Database Management System 1 (Lecture)', 2, 0, NULL),
+(20, 'DBMSLAB1', 'Database Management System 1 (Laboratory)', 0, 1, NULL),
+(21, 'GEPEFITE', 'Fitness Exercise', 2, 0, NULL),
+(22, 'NSTPCTS2', 'National Service Training Program 2', 3, 0, NULL),
+(23, 'GEETHICS', 'Ethics', 3, 0, NULL),
+(24, 'DSALGLEC', 'Data Structures and Algorithm 1 (Lecture)', 2, 0, NULL),
+(25, 'DSALGLAB', 'Data Structures and Algorithm 1 (Laboratory)', 0, 1, NULL),
+(26, 'INFMGTLC', 'Information Management (Lecture)', 2, 0, NULL),
+(27, 'INFMGTLB', 'Information Management (Laboratory)', 0, 1, NULL),
+(28, 'PTECHLEC', 'Platform Technologies (Lecture)', 2, 0, NULL),
+(29, 'PTECHLAB', 'Platform Technologies (Laboratory)', 0, 1, NULL),
+(30, 'WEBDVLC1', 'Web Development 1 (Lecture)', 2, 0, NULL),
+(31, 'WEBDVLB1', 'Web Development 1 (Laboratory)', 0, 1, NULL),
+(32, 'BUSANALY', 'Business Analytics', 3, 0, NULL),
+(33, 'GEPEHEF1', 'Physical Activity Towards Health and Fitness 1', 2, 0, NULL),
+(34, 'GEELECCP', 'Communicative Proficiency in Business Writing', 3, 0, NULL),
+(35, 'DBMSLEC2', 'Database Management System 2 (Lecture)', 2, 0, NULL),
+(36, 'DBMSLAB2', 'Database Management System 2 (Laboratory)', 0, 1, NULL),
+(37, 'INTHCILC', 'Introduction to Human-Computer Interaction (Lecture)', 2, 0, NULL),
+(38, 'INTHCILB', 'Introduction to Human-Computer Interaction (Laboratory)', 0, 1, NULL),
+(39, 'NETWKLC1', 'Networking 1 (Lecture)', 2, 0, NULL),
+(40, 'NETWKLB1', 'Networking 1 (Laboratory)', 0, 1, NULL),
+(41, 'WEBDVLC2', 'Web Development 2 (Lecture)', 2, 0, NULL),
+(42, 'WEBDVLB2', 'Web Development 2 (Laboratory)', 0, 1, NULL),
+(43, 'IPATLEC1', 'Integrative Programming and Technologies 1 (Lecture)', 2, 0, NULL),
+(44, 'IPATLAB1', 'Integrative Programming and Technologies 1 (Laboratory)', 0, 1, NULL),
+(45, 'GEPEHEF2', 'Physical Activity Towards Health and Fitness 2', 2, 0, NULL),
+(46, 'GEELECDS', 'Practical Data Science', 3, 0, NULL),
+(47, 'WEBDVLC3', 'Web Development 3 (Lecture)', 2, 0, NULL),
+(48, 'WEBDVLB3', 'Web Development 3 (Laboratory)', 0, 1, NULL),
+(49, 'MMDIALEC', 'Multimedia (Lecture)', 2, 0, NULL),
+(50, 'MMDIALAB', 'Multimedia (Laboratory)', 0, 1, NULL),
+(51, 'SYSARCH1', 'Systems Integration and Architecture 1 (Lecture)', 2, 0, NULL),
+(52, 'SYSARLB1', 'Systems Integration and Architecture 1 (Laboratory)', 0, 1, NULL),
+(53, 'APDEVLEC', 'Application Development and Emerging Tech (Lecture)', 2, 0, NULL),
+(54, 'APDEVLAB', 'Application Development and Emerging Tech (Lab)', 0, 1, NULL),
+(55, 'NETWKLC2', 'Networking 2 (Lecture)', 2, 0, NULL),
+(56, 'NETWKLB2', 'Networking 2 (Laboratory)', 0, 1, NULL),
+(57, 'GELIFEWR', 'Life and Works of Rizal', 3, 0, NULL),
+(58, 'GEELECES', 'Environmental Science', 3, 0, NULL),
+(59, 'QUANMETH', 'Quantitative Methods', 3, 0, NULL),
+(60, 'ITTHESI1', 'Research 1', 3, 0, NULL),
+(61, 'MOBAPLEC', 'Mobile App Development (Lecture)', 2, 0, NULL),
+(62, 'MOBAPLAB', 'Mobile App Development (Laboratory)', 0, 1, NULL),
+(63, 'OOPRGLEC', 'Object-Oriented Programming (Lecture)', 2, 0, NULL),
+(64, 'OOPRGLAB', 'Object-Oriented Programming (Laboratory)', 0, 1, NULL),
+(65, 'IAASLEC1', 'Information Assurance and Security 1 (Lecture)', 2, 0, NULL),
+(66, 'IAASLAB1', 'Information Assurance and Security 1 (Laboratory)', 0, 1, NULL),
+(67, 'GECONTWO', 'Contemporary World', 3, 0, NULL),
+(68, 'SYSARCH2', 'Systems Integration and Architecture 2 (Lecture)', 2, 0, NULL),
+(69, 'SYSARLB2', 'Systems Integration and Architecture 2 (Laboratory)', 0, 1, NULL),
+(70, 'ITTHESI2', 'Research 2 (Lecture)', 2, 0, NULL),
+(71, 'ITTHESL2', 'Research 2 (Laboratory)', 0, 1, NULL),
+(72, 'IAASLEC2', 'Information Assurance and Security 2 (Lecture)', 2, 0, NULL),
+(73, 'IAASLAB2', 'Information Assurance and Security 2 (Laboratory)', 0, 1, NULL),
+(74, 'SYSADMLC', 'Systems Administration and Maintenance (Lecture)', 2, 0, NULL),
+(75, 'SYSADMLB', 'Systems Administration and Maintenance (Laboratory)', 0, 1, NULL),
+(76, 'SPISSUES', 'Social and Professional Issues', 3, 0, NULL),
+(77, 'ITINTERN', 'Practicum / Internship', 10, 0, NULL),
+(78, 'GELIFEWR', 'Life And Work of Rizal', 2, 0, NULL),
+(79, 'GELIFEWR', 'Life And Work of Rizal', 2, 0, NULL),
+(80, 'DATANALY', 'Data Analytics ', 3, 0, NULL),
+(81, 'ITTHESIS', 'THESIS 2', 2, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -979,7 +980,14 @@ CREATE TABLE `enrolled_subject` (
 --
 
 INSERT INTO `enrolled_subject` (`id`, `student_number`, `curriculum_id`, `course_id`, `active_school_year_id`, `midterm`, `finals`, `final_grade`, `grades_status`, `en_remarks`, `department_section_id`, `status`, `fe_status`, `created_at`) VALUES
-(613, '202500001', 1, 1, 16, '1.25', '1.25', '1.25', '2.25', 1, 1, 1, 0, '2025-09-17 08:51:48');
+(613, '202500001', 1, 1, 16, '1.25', '1.25', '1.25', '2.25', 1, 1, 1, 0, '2025-09-17 08:51:48'),
+(733, '202500001', 1, 2, 16, '0.00', '0.00', '0.00', NULL, 0, 9, 0, 0, '2025-11-04 05:26:32'),
+(734, '202500001', 1, 3, 16, '0.00', '0.00', '0.00', NULL, 0, 9, 0, 0, '2025-11-04 05:26:33'),
+(735, '202500001', 1, 4, 16, '0.00', '0.00', '0.00', NULL, 0, 9, 0, 0, '2025-11-04 05:26:34'),
+(736, '202500001', 1, 5, 16, '0.00', '0.00', '0.00', NULL, 0, 9, 0, 0, '2025-11-04 05:26:34'),
+(737, '202500001', 1, 6, 16, '0.00', '0.00', '0.00', NULL, 0, 9, 0, 0, '2025-11-04 05:26:36'),
+(738, '202500001', 1, 7, 16, '0.00', '0.00', '0.00', NULL, 0, 9, 0, 0, '2025-11-04 05:26:36'),
+(739, '202500001', 1, 8, 16, '0.00', '0.00', '0.00', NULL, 0, 9, 0, 0, '2025-11-04 05:26:39');
 
 -- --------------------------------------------------------
 
@@ -1562,7 +1570,7 @@ CREATE TABLE `person_table` (
 --
 
 INSERT INTO `person_table` (`person_id`, `student_number`, `profile_img`, `campus`, `academicProgram`, `classifiedAs`, `applyingAs`, `program`, `program2`, `program3`, `yearLevel`, `last_name`, `first_name`, `middle_name`, `extension`, `nickname`, `height`, `weight`, `lrnNumber`, `nolrnNumber`, `gender`, `pwdMember`, `pwdType`, `pwdId`, `birthOfDate`, `age`, `birthPlace`, `languageDialectSpoken`, `citizenship`, `religion`, `civilStatus`, `tribeEthnicGroup`, `cellphoneNumber`, `emailAddress`, `presentStreet`, `presentBarangay`, `presentZipCode`, `presentRegion`, `presentProvince`, `presentMunicipality`, `presentDswdHouseholdNumber`, `sameAsPresentAddress`, `permanentStreet`, `permanentBarangay`, `permanentZipCode`, `permanentRegion`, `permanentProvince`, `permanentMunicipality`, `permanentDswdHouseholdNumber`, `solo_parent`, `father_deceased`, `father_family_name`, `father_given_name`, `father_middle_name`, `father_ext`, `father_nickname`, `father_education`, `father_education_level`, `father_last_school`, `father_course`, `father_year_graduated`, `father_school_address`, `father_contact`, `father_occupation`, `father_employer`, `father_income`, `father_email`, `mother_deceased`, `mother_family_name`, `mother_given_name`, `mother_middle_name`, `mother_ext`, `mother_nickname`, `mother_education`, `mother_education_level`, `mother_last_school`, `mother_course`, `mother_year_graduated`, `mother_school_address`, `mother_contact`, `mother_occupation`, `mother_employer`, `mother_income`, `mother_email`, `guardian`, `guardian_family_name`, `guardian_given_name`, `guardian_middle_name`, `guardian_ext`, `guardian_nickname`, `guardian_address`, `guardian_contact`, `guardian_email`, `annual_income`, `schoolLevel`, `schoolLastAttended`, `schoolAddress`, `courseProgram`, `honor`, `generalAverage`, `yearGraduated`, `schoolLevel1`, `schoolLastAttended1`, `schoolAddress1`, `courseProgram1`, `honor1`, `generalAverage1`, `yearGraduated1`, `strand`, `cough`, `colds`, `fever`, `asthma`, `faintingSpells`, `heartDisease`, `tuberculosis`, `frequentHeadaches`, `hernia`, `chronicCough`, `headNeckInjury`, `hiv`, `highBloodPressure`, `diabetesMellitus`, `allergies`, `cancer`, `smokingCigarette`, `alcoholDrinking`, `hospitalized`, `hospitalizationDetails`, `medications`, `hadCovid`, `covidDate`, `vaccine1Brand`, `vaccine1Date`, `vaccine2Brand`, `vaccine2Date`, `booster1Brand`, `booster1Date`, `booster2Brand`, `booster2Date`, `chestXray`, `cbc`, `urinalysis`, `otherworkups`, `symptomsToday`, `remarks`, `termsOfAgreement`, `created_at`, `current_step`) VALUES
-(1, '202500001', '2025100001_1by1_2025.jpg', 1, 'Undergraduate', 'Freshman (First Year)', 'Master Degree Graduate', '17', '11', '14', 'First Year', 'Montaño', 'Mark Anthony', 'Placido', NULL, 'Johnny', '5\'11', '65kg', '123456789012', 0, 0, 0, NULL, NULL, '2005-10-23', 20, 'Manila, Philippines', 'Tagalog, English', 'FILIPINO', 'Born Again', 'Single', 'Agta', '09171234567999999', 'markmontano999@gmail.com', '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, 0, 'Doe Sr.', 'Jonathan', 'Smiths', 'III', 'Jon', 1, NULL, NULL, NULL, NULL, NULL, '09181234567', 'Engineer', 'ABC Corp', '50000', 'jon.doe@abc.com', 0, 'Jane', 'Mary', 'Anne', NULL, 'Janey', 1, NULL, NULL, NULL, NULL, NULL, '09221234567', 'Accountant', 'XYZ Corp', '100000', 'jane.doe@xyz.com', 'StepFather', 'Parker', 'Ben', 'Jose', 'IV', 'Benny', '789 Recto Av', '09192233445', NULL, '135,000 to 250,000', 'Senior High School', 'CGEAHS', 'Pasig Citys', 'STEM', 'With Honors', 92.50, 2022, 'Senior High School', 'CGEAHS', 'Rizal High School', 'Rizal High School', '0', 66.00, 0, 'Information and Communications Technology (ICT)', 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 'Wala ngani', 'Vitamins C', 1, '2022-02-11', 'Pfizer', '2022-03-14', 'Pfizer', '2022-04-13', 'Moderna', '2022-07-14', 'Pfizer', '2023-01-14', 'Normal', 'Normal', 'Normal', 'Normal', 1, 'Fit to enroll', 1, '2025-11-08', 1),
+(1, '202500001', '2025100001_1by1_2025.jpg', 1, 'Undergraduate', 'Freshman (First Year)', 'Master Degree Graduate', '6', '11', '14', 'First Year', 'Montaño', 'Mark Anthony', 'Placido', NULL, 'Johnny', '5\'11', '65kg', '123456789012', 0, 0, 0, NULL, NULL, '2005-10-23', 20, 'Manila, Philippines', 'Tagalog, English', 'FILIPINO', 'Born Again', 'Single', 'Agta', '09171234567999999', 'markmontano999@gmail.com', '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, '19 G Dona Yayang Street ', 'Libis', '1000', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'Quezon City', 'DSWD123456', 0, 0, 'Doe S', 'Jonathan', 'Smiths', 'III', 'Jon', 1, NULL, NULL, NULL, NULL, NULL, '0918123456', 'Engineer', 'ABC Corp', '50000', 'jon.doe@abc.com', 0, 'Jan', 'Mary', 'Anne', NULL, 'Janey', 1, NULL, NULL, NULL, NULL, NULL, '09221234567', 'Accountant', 'XYZ Corp', '100000', 'jane.doe@xyz.com', 'StepFather', 'Parker', 'Ben', 'Jose', 'IV', 'Benny', '789 Recto Av', '09192233445', NULL, '135,000 to 250,000', 'Senior High School', 'CGEAHS', 'Pasig Citys', 'STEM', 'With Honors', 92.50, 2022, 'Senior High School', 'CGEAHS', 'Rizal High School', 'Rizal High School', '0', 66.00, 0, 'Information and Communications Technology (ICT)', 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 'Wala ngani', 'Vitamins C', 1, '2022-02-11', 'Pfizer', '2022-03-14', 'Pfizer', '2022-04-13', 'Moderna', '2022-07-14', 'Pfizer', '2023-01-14', 'Normal', 'Normal', 'Normal', 'Normal', 1, 'Fit to enroll', 1, '2025-11-08', 1),
 (2, '202500002', '3_1by1_2025.jpg', 1, 'Techvoc', 'Freshman (First Year)', 'Senior High School Graduate', '38', '4', '3', 'Second  Year', 'Emily', 'Johnson', 'Grace', '', 'MARK', '5\'11', '65', '123456789012', 0, 0, 0, '', '', '2003-06-26', 21, 'Manila, Philippines', 'Tagalog, English', 'ALGERIAN', 'Iglesia Ni Cristo', 'Single', 'Cebuano', '09953242510', 'emily.johnson2@example.com', '19 G Dona yayang Street Libis', 'Pag-asa', '4100', 'National Capital Region (NCR)', 'Metro Manila, Second District', 'City Of Mandaluyong', 'DSWD123456', 0, '19 G Dona yayang Street Libis', 'Malipayon', '4100', 'Region X (Northern Mindanao)', 'Bukidnon', 'Pangantucan', 'DSWD123456', 0, 0, '', '', '', '', '', 0, '', '', '', '', '', '', '', '', '', '', 0, '', '', '', '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'fgdsgfasftrasf', '', '', '', 0.00, 0, '', '', '', '', '', 83.00, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 0, '', '', '', '', '', '', '', '', '', '', '', '', '', 0, '', 0, '2024-12-10', 1),
 (60, NULL, NULL, 0, NULL, NULL, NULL, '31', NULL, NULL, NULL, 'Bell', 'Evelyn', 'Faith', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'evelyn.bell60@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 63.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-08-09', 1),
 (59, NULL, NULL, 0, NULL, NULL, NULL, '5', NULL, NULL, NULL, 'Morgan', 'Levi', 'Anne', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'levi.morgan59@example.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 99.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-04-12', 1),
@@ -1690,7 +1698,7 @@ INSERT INTO `prof_table` (`prof_id`, `person_id`, `profile_image`, `fname`, `mna
 (35, 35, '', 'Maria Jasmine', NULL, 'Macasil', 'jasmine.macasil@earist.edu.ph', 'MACASIL', 0, 'faculty'),
 (36, 36, '', 'Jefferson', NULL, 'Costales', 'jefferson.costales@earist.edu.ph', 'COSTALES', 0, 'faculty'),
 (37, 37, '', 'Arjo', NULL, 'Ladia', 'arjo.ladia@earist.edu.ph', 'LADIA', 0, 'faculty'),
-(38, 38, '06262003_ProfessorProfile_2025.jpg', 'Mark Anthony', 'Placido', 'Montano', 'markmontano999@gmail.com', '$2b$10$eUcFSQXtFxPNdj7vR/UVCu0Of0Y/CszW7zxQnmKj2x0.akxOQJIZi', 1, 'faculty'),
+(38, 38, '06262003_ProfessorProfile_2025.jpg', 'Mark Anthony', 'Placido', 'Montano', 'markmontano999@gmail.com', '$2b$10$1z0TPyKFo6qtCrVAaA1D4e3qANATLI.pyTLqZinmmT8sF2zMALkDu', 1, 'faculty'),
 (63, 98, '98_ProfessorProfile_2025.png', 'Dhani', 'San', 'Jose', 'disanjose@earist.edu.ph', '$2b$10$/XhdvzV/4rugRbZH5gWafenpXBkbuJT2pjsopS85Mj27vDI2ZjFxm', 1, 'faculty');
 
 -- --------------------------------------------------------
@@ -2149,7 +2157,8 @@ CREATE TABLE `student_curriculum_table` (
 --
 
 INSERT INTO `student_curriculum_table` (`id`, `student_numbering_id`, `curriculum_id`) VALUES
-(1, 123, 14);
+(1, 123, 14),
+(2, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -2463,7 +2472,7 @@ CREATE TABLE `user_accounts` (
 --
 
 INSERT INTO `user_accounts` (`id`, `person_id`, `employee_id`, `profile_picture`, `role`, `last_name`, `middle_name`, `first_name`, `email`, `password`, `status`, `dprtmnt_id`) VALUES
-(1, 1, NULL, NULL, 'student', NULL, NULL, NULL, 'markmontao2671@gmail.com', '$2b$10$eUcFSQXtFxPNdj7vR/UVCu0Of0Y/CszW7zxQnmKj2x0.akxOQJIZi', 1, NULL),
+(1, 1, NULL, NULL, 'student', NULL, NULL, NULL, 'markmontao2671@gmail.com', '$2b$10$1z0TPyKFo6qtCrVAaA1D4e3qANATLI.pyTLqZinmmT8sF2zMALkDu', 1, NULL),
 (2, 4, NULL, NULL, 'student', NULL, NULL, NULL, 'markmontano0626@gmail.com', '$2b$10$1z0TPyKFo6qtCrVAaA1D4e3qANATLI.pyTLqZinmmT8sF2zMALkDu', 1, NULL),
 (12, 13, NULL, NULL, 'student', NULL, NULL, NULL, 'benjamin.anderson13@example.com', '$2b$10$QEsrP1R1oVa.eZiqlZRgoeFaaIJSX2ZuR9DhZvArwINLs3mR2a/cm', 0, NULL),
 (13, 14, NULL, NULL, 'student', NULL, NULL, NULL, 'ava.thomas14@example.com', '$2b$10$Bqh2HDkbbs0PabLc1ycQpOYj4RBqeb4rR7b/Iu8B5b3mM7cAFPY8W', 0, NULL),
@@ -2525,7 +2534,7 @@ INSERT INTO `user_accounts` (`id`, `person_id`, `employee_id`, `profile_picture`
 (70, 57, NULL, NULL, 'student', NULL, NULL, NULL, 'nathan.reed57@example.com', '$2b$10$jnUt93mOT7dY3lOJ7GAkMutqEzQIg3FR42FBIs.CRiYbZyrD0NCly', 0, NULL),
 (71, 59, NULL, NULL, 'student', NULL, NULL, NULL, 'levi.morgan59@example.com', '$2b$10$b9kBNyc6ZfQLV1TIB2Jm5.NSQhp8YsQMItIxnJTA6otBZWuoYd6lS', 0, NULL),
 (72, 60, NULL, NULL, 'student', NULL, NULL, NULL, 'mecasio.a.bsinfotech@gmail.com', '$2b$10$mgM73SADDUd.J5AZmNh38.0t9LQaQLbpQC/fCNYGH/1dB.KRy567q', 1, NULL),
-(73, 61, '224-06342M', '224-06342M_profile_image_2025.jpg', 'registrar', 'Montano', 'Placido', 'Mark Anthony', 'markmontano522@gmail.com', '$2b$10$eUcFSQXtFxPNdj7vR/UVCu0Of0Y/CszW7zxQnmKj2x0.akxOQJIZi', 1, 5),
+(73, 61, '224-06342M', '224-06342M_profile_image_2025.jpg', 'registrar', 'Montano', 'Placido', 'Mark Anthony', 'markmontano522@gmail.com', '$2b$10$1z0TPyKFo6qtCrVAaA1D4e3qANATLI.pyTLqZinmmT8sF2zMALkDu', 1, 5),
 (74, 306, NULL, NULL, 'student', NULL, NULL, NULL, 'delacruz.lc.bsinfotech@gmail.com', '$2b$10$0euJr9pUR.su/PpmOIENd..YKBEZCP/aBsKhjyfnmWsE1kJyRb56a', NULL, NULL),
 (75, 307, NULL, NULL, 'student', NULL, NULL, NULL, 'montano.ma.bsinfotech@gmail.com', '$2b$10$KtKN9/cT9fuTOPJzEe6TLOSkcMF61D.WIN8Mh5p2l40f2aLH2SXna', NULL, NULL),
 (76, 309, NULL, NULL, 'student', NULL, NULL, NULL, 'montano.ma.bsinfotech@gmail.com', '$2b$10$wzhCvWPfpU.hKrvkpf/m..LDAv4lbMSTXzHWsxliegtvNB3AXoR9u', NULL, NULL),
@@ -2889,7 +2898,7 @@ ALTER TABLE `dprtmnt_table`
 -- AUTO_INCREMENT for table `enrolled_subject`
 --
 ALTER TABLE `enrolled_subject`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=733;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=740;
 
 --
 -- AUTO_INCREMENT for table `evaluation_table`
@@ -3015,7 +3024,7 @@ ALTER TABLE `student_counter`
 -- AUTO_INCREMENT for table `student_curriculum_table`
 --
 ALTER TABLE `student_curriculum_table`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `student_evaluation_table`

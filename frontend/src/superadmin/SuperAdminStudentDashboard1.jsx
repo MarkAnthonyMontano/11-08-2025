@@ -24,7 +24,6 @@ import ExamPermit from "../applicant/ExamPermit";
 import { Snackbar, Alert } from '@mui/material';
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
-import SearchIcon from "@mui/icons-material/Search";
 
 
 const SuperAdminStudentDashboard1 = () => {
@@ -83,53 +82,53 @@ const SuperAdminStudentDashboard1 = () => {
     });
 
 
-    const [hasAccess, setHasAccess] = useState(null);
-    const [loading, setLoading] = useState(false);
+const [hasAccess, setHasAccess] = useState(null);
+const [loading, setLoading] = useState(false);
 
 
-    const pageId = 90;
+const pageId = 90;
 
-    //Put this After putting the code of the past code
-    useEffect(() => {
+//Put this After putting the code of the past code
+useEffect(() => {
+    
+    const storedUser = localStorage.getItem("email");
+    const storedRole = localStorage.getItem("role");
+    const storedID = localStorage.getItem("person_id");
 
-        const storedUser = localStorage.getItem("email");
-        const storedRole = localStorage.getItem("role");
-        const storedID = localStorage.getItem("person_id");
+    if (storedUser && storedRole && storedID) {
+      setUser(storedUser);
+      setUserRole(storedRole);
+      setUserID(storedID);
 
-        if (storedUser && storedRole && storedID) {
-            setUser(storedUser);
-            setUserRole(storedRole);
-            setUserID(storedID);
+      if (storedRole === "registrar") {
+        checkAccess(storedID);
+      } else {
+        window.location.href = "/login";
+      }
+    } else {
+      window.location.href = "/login";
+    }
+  }, []);
 
-            if (storedRole === "registrar") {
-                checkAccess(storedID);
-            } else {
-                window.location.href = "/login";
-            }
+const checkAccess = async (userID) => {
+    try {
+        const response = await axios.get(`http://localhost:5000/api/page_access/${userID}/${pageId}`);
+        if (response.data && response.data.page_privilege === 1) {
+          setHasAccess(true);
         } else {
-            window.location.href = "/login";
+          setHasAccess(false);
         }
-    }, []);
-
-    const checkAccess = async (userID) => {
-        try {
-            const response = await axios.get(`http://localhost:5000/api/page_access/${userID}/${pageId}`);
-            if (response.data && response.data.page_privilege === 1) {
-                setHasAccess(true);
-            } else {
-                setHasAccess(false);
-            }
-        } catch (error) {
-            console.error('Error checking access:', error);
-            setHasAccess(false);
-            if (error.response && error.response.data.message) {
-                console.log(error.response.data.message);
-            } else {
-                console.log("An unexpected error occurred.");
-            }
-            setLoading(false);
+    } catch (error) {
+        console.error('Error checking access:', error);
+        setHasAccess(false);
+        if (error.response && error.response.data.message) {
+          console.log(error.response.data.message);
+        } else {
+          console.log("An unexpected error occurred.");
         }
-    };
+        setLoading(false);
+    }
+  };
 
     // do not alter
     const location = useLocation();
@@ -819,7 +818,7 @@ const SuperAdminStudentDashboard1 = () => {
         { to: `/admin_personal_data_form`, label: "Personal Data Form" },
         { to: `/admin_office_of_the_registrar`, label: "Application For EARIST College Admission" },
         { to: `/admission_services`, label: "Application/Student Satisfactory Survey" },
-
+   
     ];
 
 
@@ -835,16 +834,16 @@ const SuperAdminStudentDashboard1 = () => {
     }, [userID]);
 
 
-    // Put this at the very bottom before the return 
-    if (loading || hasAccess === null) {
-        return <LoadingOverlay open={loading} message="Check Access" />;
-    }
+// Put this at the very bottom before the return 
+if (loading || hasAccess === null) {
+   return <LoadingOverlay open={loading} message="Check Access"/>;
+}
 
-    if (!hasAccess) {
-        return (
-            <Unauthorized />
-        );
-    }
+  if (!hasAccess) {
+    return (
+      <Unauthorized />
+    );
+  }
 
 
 
@@ -867,9 +866,9 @@ const SuperAdminStudentDashboard1 = () => {
                     justifyContent: "space-between",
                     alignItems: "center",
                     flexWrap: "wrap",
-
+                    
                     mb: 2,
-
+                    
                 }}
             >
                 <Typography
@@ -890,7 +889,7 @@ const SuperAdminStudentDashboard1 = () => {
                         placeholder="Search Applicant Name / Email / Student Number"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        sx={{
+                         sx={{
                             width: 450,
                             backgroundColor: "#fff",
                             borderRadius: 1,

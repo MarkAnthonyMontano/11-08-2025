@@ -200,17 +200,222 @@ const MedicalDashboard2 = () => {
 
 
 
-    // Do not alter
-    const handleUpdate = async (updatedPerson) => {
-        try {
-            // ✅ force the request to the enrollment route
-            await axios.put(`http://localhost:5000/api/enrollment/person/${userID}`, updatedPerson);
-            console.log("✅ Auto-saved to ENROLLMENT DB3");
-        } catch (error) {
-            console.error("❌ Auto-save failed:", error);
-        }
-    };
-
+   
+     // ✅ Safe handleUpdate function (no DB errors, correct applicant update)
+     const handleUpdate = async (updatedData) => {
+       if (!person) return;
+   
+       try {
+         // ✅ Get correct applicant ID
+         const targetId = selectedPerson?.person_id || queryPersonId || person.person_id;
+         if (!targetId) {
+           console.warn("⚠️ No valid applicant ID found — skipping update.");
+           return;
+         }
+   
+         // ✅ Only include valid columns existing in person_table
+         const allowedFields = [
+           "person_id", "profile_img", "campus", "academicProgram", "classifiedAs", "applyingAs",
+           "program", "program2", "program3", "yearLevel",
+           "last_name", "first_name", "middle_name", "extension", "nickname",
+           "height", "weight", "lrnNumber", "nolrnNumber", "gender",
+           "pwdMember", "pwdType", "pwdId",
+           "birthOfDate", "age", "birthPlace", "languageDialectSpoken",
+           "citizenship", "religion", "civilStatus", "tribeEthnicGroup",
+           "cellphoneNumber", "emailAddress",
+           "presentStreet", "presentBarangay", "presentZipCode", "presentRegion",
+           "presentProvince", "presentMunicipality", "presentDswdHouseholdNumber",
+           "sameAsPresentAddress",
+           "permanentStreet", "permanentBarangay", "permanentZipCode",
+           "permanentRegion", "permanentProvince", "permanentMunicipality",
+           "permanentDswdHouseholdNumber",
+           "solo_parent",
+           "father_deceased", "father_family_name", "father_given_name", "father_middle_name",
+           "father_ext", "father_nickname", "father_education", "father_education_level",
+           "father_last_school", "father_course", "father_year_graduated", "father_school_address",
+           "father_contact", "father_occupation", "father_employer", "father_income", "father_email",
+           "mother_deceased", "mother_family_name", "mother_given_name", "mother_middle_name",
+           "mother_ext", "mother_nickname", "mother_education", "mother_education_level",
+           "mother_last_school", "mother_course", "mother_year_graduated", "mother_school_address",
+           "mother_contact", "mother_occupation", "mother_employer", "mother_income", "mother_email",
+           "guardian", "guardian_family_name", "guardian_given_name", "guardian_middle_name",
+           "guardian_ext", "guardian_nickname", "guardian_address", "guardian_contact", "guardian_email",
+           "annual_income",
+           "schoolLevel", "schoolLastAttended", "schoolAddress", "courseProgram",
+           "honor", "generalAverage", "yearGraduated",
+           "schoolLevel1", "schoolLastAttended1", "schoolAddress1", "courseProgram1",
+           "honor1", "generalAverage1", "yearGraduated1",
+           "strand",
+           // 🩺 Health and medical
+           "cough", "colds", "fever", "asthma", "faintingSpells", "heartDisease",
+           "tuberculosis", "frequentHeadaches", "hernia", "chronicCough", "headNeckInjury",
+           "hiv", "highBloodPressure", "diabetesMellitus", "allergies", "cancer",
+           "smokingCigarette", "alcoholDrinking", "hospitalized", "hospitalizationDetails",
+           "medications",
+           // 🧬 Covid / Vaccination
+           "hadCovid", "covidDate",
+           "vaccine1Brand", "vaccine1Date", "vaccine2Brand", "vaccine2Date",
+           "booster1Brand", "booster1Date", "booster2Brand", "booster2Date",
+           // 🧪 Lab results / medical findings
+           "chestXray", "cbc", "urinalysis", "otherworkups",
+           // 🧍 Additional fields
+           "symptomsToday", "remarks",
+           // ✅ Agreement / Meta
+           "termsOfAgreement", "created_at", "current_step"
+         ];
+   
+         // ✅ Clean the payload
+         const cleanedData = Object.fromEntries(
+           Object.entries(updatedData).filter(([key]) => allowedFields.includes(key))
+         );
+   
+         if (Object.keys(cleanedData).length === 0) {
+           console.warn("⚠️ No valid fields to update — skipping request.");
+           return;
+         }
+   
+         // ✅ Send update request
+         await axios.put(`http://localhost:5000/api/person/${targetId}`, cleanedData);
+   
+         console.log(`✅ SuperAdmin updated person_id: ${targetId} successfully.`);
+       } catch (error) {
+         console.error("❌ SuperAdmin update failed:", {
+           message: error.message,
+           status: error.response?.status,
+           details: error.response?.data || error,
+         });
+       }
+     };
+   
+   
+   
+     // Helper: parse "YYYY-MM-DD" safely (local date in Asia/Manila)
+     const parseISODate = (dateString) => {
+       if (!dateString) return null;
+       const [y, m, d] = dateString.split("-").map(Number);
+       if (!y || !m || !d) return null;
+       return new Date(y, m - 1, d);
+     };
+   
+     // Helper: get current date in Asia/Manila (no time portion)
+     const getManilaDate = () => {
+       const now = new Date();
+       // Convert current UTC time to Manila time using locale
+       const manilaString = now.toLocaleString("en-PH", {
+         timeZone: "Asia/Manila",
+         year: "numeric",
+         month: "2-digit",
+         day: "2-digit",
+       });
+   
+       // manilaString format: "MM/DD/YYYY"
+       const [month, day, year] = manilaString.split("/");
+       return new Date(`${year}-${month}-${day}`);
+     };
+   
+     // 🧮 Calculate age using Manila time
+     const calculateAge = (birthDateString) => {
+       const birthDate = parseISODate(birthDateString);
+       if (!birthDate) return "";
+   
+       const today = getManilaDate();
+   
+       let age = today.getFullYear() - birthDate.getFullYear();
+       const monthDiff = today.getMonth() - birthDate.getMonth();
+       const dayDiff = today.getDate() - birthDate.getDate();
+   
+       // 🎂 Subtract 1 if birthday hasn't occurred yet this year
+       if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+         age--;
+       }
+   
+       return age < 0 ? "" : age;
+     };
+   
+ 
+   
+      // ✅ Safe handleBlur for SuperAdmin — updates correct applicant only
+         const handleBlur = async () => {
+             try {
+                 // ✅ Determine correct applicant/person_id
+                 const targetId = selectedPerson?.person_id || queryPersonId || person.person_id;
+                 if (!targetId) {
+                     console.warn("⚠️ No valid applicant ID found — skipping update.");
+                     return;
+                 }
+     
+                 const allowedFields = [
+                     "person_id", "profile_img", "campus", "academicProgram", "classifiedAs", "applyingAs",
+                     "program", "program2", "program3", "yearLevel",
+                     "last_name", "first_name", "middle_name", "extension", "nickname",
+                     "height", "weight", "lrnNumber", "nolrnNumber", "gender",
+                     "pwdMember", "pwdType", "pwdId",
+                     "birthOfDate", "age", "birthPlace", "languageDialectSpoken",
+                     "citizenship", "religion", "civilStatus", "tribeEthnicGroup",
+                     "cellphoneNumber", "emailAddress",
+                     "presentStreet", "presentBarangay", "presentZipCode", "presentRegion",
+                     "presentProvince", "presentMunicipality", "presentDswdHouseholdNumber",
+                     "sameAsPresentAddress",
+                     "permanentStreet", "permanentBarangay", "permanentZipCode",
+                     "permanentRegion", "permanentProvince", "permanentMunicipality",
+                     "permanentDswdHouseholdNumber",
+                     "solo_parent",
+                     "father_deceased", "father_family_name", "father_given_name", "father_middle_name",
+                     "father_ext", "father_nickname", "father_education", "father_education_level",
+                     "father_last_school", "father_course", "father_year_graduated", "father_school_address",
+                     "father_contact", "father_occupation", "father_employer", "father_income", "father_email",
+                     "mother_deceased", "mother_family_name", "mother_given_name", "mother_middle_name",
+                     "mother_ext", "mother_nickname", "mother_education", "mother_education_level",
+                     "mother_last_school", "mother_course", "mother_year_graduated", "mother_school_address",
+                     "mother_contact", "mother_occupation", "mother_employer", "mother_income", "mother_email",
+                     "guardian", "guardian_family_name", "guardian_given_name", "guardian_middle_name",
+                     "guardian_ext", "guardian_nickname", "guardian_address", "guardian_contact", "guardian_email",
+                     "annual_income",
+                     "schoolLevel", "schoolLastAttended", "schoolAddress", "courseProgram",
+                     "honor", "generalAverage", "yearGraduated",
+                     "schoolLevel1", "schoolLastAttended1", "schoolAddress1", "courseProgram1",
+                     "honor1", "generalAverage1", "yearGraduated1",
+                     "strand",
+                     // 🩺 Health and medical
+                     "cough", "colds", "fever", "asthma", "faintingSpells", "heartDisease",
+                     "tuberculosis", "frequentHeadaches", "hernia", "chronicCough", "headNeckInjury",
+                     "hiv", "highBloodPressure", "diabetesMellitus", "allergies", "cancer",
+                     "smokingCigarette", "alcoholDrinking", "hospitalized", "hospitalizationDetails",
+                     "medications",
+                     // 🧬 Covid / Vaccination
+                     "hadCovid", "covidDate",
+                     "vaccine1Brand", "vaccine1Date", "vaccine2Brand", "vaccine2Date",
+                     "booster1Brand", "booster1Date", "booster2Brand", "booster2Date",
+                     // 🧪 Lab results / medical findings
+                     "chestXray", "cbc", "urinalysis", "otherworkups",
+                     // 🧍 Additional fields
+                     "symptomsToday", "remarks",
+                     // ✅ Agreement / Meta
+                     "termsOfAgreement", "created_at", "current_step"
+                 ];
+     
+                 // ✅ Clean payload before sending
+                 const cleanedData = Object.fromEntries(
+                     Object.entries(person).filter(([key]) => allowedFields.includes(key))
+                 );
+     
+                 if (Object.keys(cleanedData).length === 0) {
+                     console.warn("⚠️ No valid fields to update — skipping blur save.");
+                     return;
+                 }
+     
+                 // ✅ Execute safe update
+                 await axios.put(`http://localhost:5000/api/person/${targetId}`, cleanedData);
+                 console.log(`💾 Auto-saved (on blur) for person_id: ${targetId}`);
+             } catch (err) {
+                 console.error("❌ Auto-save (on blur) failed:", {
+                     message: err.message,
+                     status: err.response?.status,
+                     details: err.response?.data || err,
+                 });
+             }
+         };
+     
     // Real-time save on every character typed
     const handleChange = (e) => {
         const { name, type, checked, value } = e.target;
@@ -250,15 +455,7 @@ const MedicalDashboard2 = () => {
 
 
 
-    const handleBlur = async () => {
-        try {
-            await axios.put(`http://localhost:5000/api/enrollment/person/${userID}`, person);
-            console.log("✅ Auto-saved (on blur) to ENROLLMENT DB3");
-        } catch (err) {
-            console.error("❌ Auto-save failed (on blur):", err);
-        }
-    };
-
+    
 
     const [isFatherDeceased, setIsFatherDeceased] = useState(false);
     const [isMotherDeceased, setIsMotherDeceased] = useState(false);
@@ -1864,7 +2061,7 @@ const MedicalDashboard2 = () => {
                             <Button
                                 variant="contained"
                                 onClick={() => {
-                                    handleUpdate();
+                                    
                                     navigate("/medical_dashboard3");
                                 }}
                                 endIcon={

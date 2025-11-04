@@ -200,7 +200,7 @@ const StudentECATApplicationForm = () => {
       }
 
          .student-table {
-    margin-top: 130px !important;
+    margin-top: 160px !important;
   }
 
 
@@ -275,9 +275,6 @@ const StudentECATApplicationForm = () => {
       e.stopPropagation();
     }
   });
-
-
-
 
 return (
   <Box

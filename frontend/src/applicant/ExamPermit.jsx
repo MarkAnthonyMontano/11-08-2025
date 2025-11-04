@@ -38,25 +38,6 @@ const ExamPermit = ({ personId }) => {
     const [curriculumOptions, setCurriculumOptions] = useState([]);
     const [scheduledBy, setScheduledBy] = useState(""); // ✅ added
     const [printed, setPrinted] = useState(false);
-    const [person, setPerson] = useState({
-        campus: "",
-        profile_img: "",
-        last_name: "",
-        first_name: "",
-        middle_name: "",
-        extension: "",
-    });
-
-    const [campusAddress, setCampusAddress] = useState("");
-
-    useEffect(() => {
-        if (settings && settings.address) {
-            setCampusAddress(settings.address);
-        }
-    }, [settings]);
-
-
-
     // ✅ First data fetch
     useEffect(() => {
         const pid = personId || localStorage.getItem("person_id");
@@ -76,20 +57,25 @@ const ExamPermit = ({ personId }) => {
 
                 setPerson(personData);
 
-                // ✅ Check verification + schedule
                 if (applicantRes.data?.applicant_number) {
                     const applicant_number = applicantRes.data.applicant_number;
 
-                    // Verify documents
-                    const verifyRes = await axios.get(`http://localhost:5000/api/verified-exam-applicants`);
-                    const verified = verifyRes.data.some(a => a.applicant_id === applicant_number);
+                    // ✅ Use new unified verification route
+                    const verifyStatusRes = await axios.get(
+                        `http://localhost:5000/api/verification-status/${applicant_number}`
+                    );
+
+                    const { verified, totalRequired, totalVerified, hasSchedule } = verifyStatusRes.data;
+
+                    setIsVerified(verified);
 
                     if (!verified) {
-                        alert("❌ Your documents are not yet verified. You cannot print the Exam Permit.");
-                        return;
+                        console.warn(
+                            `Applicant not verified. Verified ${totalVerified}/${totalRequired} requirements. Schedule: ${hasSchedule ? "Yes" : "No"}`
+                        );
                     }
 
-                    // Fetch exam schedule
+                    // Always load exam schedule (for display)
                     const schedRes = await axios.get(
                         `http://localhost:5000/api/exam-schedule/${applicant_number}`
                     );
@@ -113,6 +99,26 @@ const ExamPermit = ({ personId }) => {
 
         fetchData();
     }, [personId]);
+
+    const [person, setPerson] = useState({
+        campus: "",
+        profile_img: "",
+        last_name: "",
+        first_name: "",
+        middle_name: "",
+        extension: "",
+    });
+
+    const [campusAddress, setCampusAddress] = useState("");
+
+    useEffect(() => {
+        if (settings && settings.address) {
+            setCampusAddress(settings.address);
+        }
+    }, [settings]);
+
+
+
 
     // ✅ Secondary fetch for updates
     useEffect(() => {
@@ -163,6 +169,7 @@ const ExamPermit = ({ personId }) => {
             .catch((err) => console.error("Error fetching registrar name:", err));
     }, [personId]);
 
+    const [isVerified, setIsVerified] = useState(false);
 
 
     // 🔒 Disable right-click
@@ -215,38 +222,42 @@ const ExamPermit = ({ personId }) => {
         }
       `}</style>
 
-            {/* Watermark */}
+            {/* ✅ VERIFIED / NOT VERIFIED Watermark */}
             <div
                 style={{
                     position: "absolute",
-                    top: "35%",
+                    top: "40%",
                     left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    opacity: 0.1,
-                    textAlign: "center",
-                    zIndex: 0,
+                    transform: "translate(-50%, -50%) rotate(-30deg)",
+                    fontSize: "90px",
+                    fontWeight: "900",
+
+                    color: isVerified ? "rgba(0, 128, 0, 0.15)" : "rgba(255, 0, 0, 0.15)",
+                    textTransform: "uppercase",
+                    whiteSpace: "nowrap",
                     pointerEvents: "none",
+                    userSelect: "none",
+                    zIndex: 0,
+                    fontFamily: "'Arial Black', sans-serif",
+                    letterSpacing: "0.3rem",
                 }}
             >
-                <img
-                    src={EaristLogoBW}
-                    alt="Earist Watermark"
-                    style={{ width: "350px", height: "350px", marginBottom: "10px" }}
-                />
-                <div
-                    style={{
-                        fontSize: "36px",
-                        fontWeight: "bold",
-                        color: "black",
-                        letterSpacing: "2px",
-                    }}
-                >
-                    VERIFIED
-                </div>
+                {isVerified ? "VERIFIED" : "NOT VERIFIED"}
             </div>
 
+            <style>{`
+  @media print {
+    div[style*="rotate(-30deg)"] {
+      color: ${isVerified
+                    ? "rgba(0, 128, 0, 0.25)"
+                    : "rgba(255, 0, 0, 0.25)"};
+    }
+    button { display: none; }
+  }
+`}</style>
+
             {/* Header */}
-            <table width="100%" style={{ borderCollapse: "collapse", marginTop: "-30px", fontFamily: "Arial" }}>
+            <table width="100%" style={{ borderCollapse: "collapse", marginTop: "-40px", fontFamily: "Arial" }}>
                 <tbody>
                     <tr>
 
@@ -259,7 +270,7 @@ const ExamPermit = ({ personId }) => {
                                     marginLeft: "-10px",
                                     width: "140px",
                                     height: "140px",
-
+                                    marginTop: "10px",
                                     borderRadius: "50%", // ✅ perfectly circular
                                     objectFit: "cover",
 
@@ -326,7 +337,7 @@ const ExamPermit = ({ personId }) => {
                                     border: "2px solid black",
                                     overflow: "hidden",
                                     borderRadius: "4px",
-                                    marginTop: "50px",
+                                    marginTop: "10px",
                                 }}
                             >
                                 {person.profile_img ? (
@@ -353,416 +364,391 @@ const ExamPermit = ({ personId }) => {
             <div style={{ height: "20px" }} />
             <div className="certificate-wrapper">
                 {/* ✅ Watermark */}
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "35%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        opacity: 0.1,
-                        textAlign: "center",
-                        zIndex: 0,
-                        pointerEvents: "none",
-                    }}
-                >
-                    <img
-                        src={EaristLogoBW}
-                        alt="Earist Watermark"
-                        style={{ width: "350px", height: "350px", marginBottom: "10px" }}
-                    />
-                    <div
-                        style={{
-                            fontSize: "36px",
-                            fontWeight: "bold",
-                            color: "black",
-                            letterSpacing: "2px",
-                        }}
-                    >
-                        VERIFIED
-                    </div>
-                </div>
-
-                {/* ✅ Applicant Details Table */}
-                <table
-                    className="student-table"
-                    style={{
-                        borderCollapse: "collapse",
-                        fontFamily: "Times New Roman",
-                        fontSize: "15px",
-                        width: "8in",
-                        margin: "0 auto",
-                        tableLayout: "fixed",
-                    }}
-                >
-                    <tbody>
-                        {/* Applicant Number */}
-                        <tr style={{ fontFamily: "Times New Roman", fontSize: "15px" }}>
-                            <td colSpan={40}>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "flex-end",
-                                        width: "100%",
-                                        gap: "10px",
-                                    }}
-                                >
-                                    <label style={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
-                                        Applicant No.:
-                                    </label>
-                                    <div
-                                        style={{
-                                            borderBottom: "1px solid black",
-                                            fontFamily: "Arial",
-                                            fontWeight: "normal",
-                                            fontSize: "15px",
-                                            minWidth: "278px",
-                                            height: "1.2em",
-                                            display: "flex",
-                                            alignItems: "center",
-                                        }}
-                                    >
-                                        {person?.applicant_number}
-                                    </div>
-                                </div>
-                            </td>
 
 
-                        </tr>
-
-                        {/* Name + Permit No. */}
-                        <tr>
-                            <td colSpan={20}>
-                                <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Name:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            fontFamily: "Arial",
-                                            minWidth: "250px",
-                                        }}
-                                    >
-                                        {person?.last_name?.toUpperCase()}, {person?.first_name?.toUpperCase()}{" "}
-                                        {person?.middle_name?.toUpperCase() || ""}{" "}
-                                        {person?.extension?.toUpperCase() || ""}
-                                    </span>
-                                </div>
-                            </td>
-                            <td colSpan={20}>
-                                <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Permit No.:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            minWidth: "200px",
-                                            fontFamily: "Arial",
-                                        }}
-                                    >
-                                        {person?.applicant_number}
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        {/* Course + Major */}
-                        <tr>
-                            <td colSpan={20}>
-                                <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Course Applied:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            minWidth: "220px",
-                                            fontFamily: "Arial",
-                                        }}
-                                    >
-                                        {curriculumOptions.find(
-                                            (c) =>
-                                                c.curriculum_id?.toString() === (person?.program ?? "").toString()
-                                        )?.program_description || ""}
-                                    </span>
-                                </div>
-                            </td>
-                            <td colSpan={20}>
-                                <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px", }}>
-                                        Major:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            minWidth: "200px",
-                                            fontFamily: "Arial",
-
-                                        }}
-                                    >
-                                        {curriculumOptions.find(
-                                            (c) =>
-                                                c.curriculum_id?.toString() === (person?.program ?? "").toString()
-                                        )?.major || ""}
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        {/* Date of Exam + Time */}
-                        <tr>
-                            <td colSpan={20}>
-                                <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Date of Exam:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            fontFamily: "Arial",
-                                        }}
-                                    >
-                                        {examSchedule?.date_of_exam}
-                                    </span>
-                                </div>
-                            </td>
-                            <td colSpan={20}>
-                                <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Time:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            fontFamily: "Arial",
-                                        }}
-                                    >
-                                        {examSchedule
-                                            ? new Date(`1970-01-01T${examSchedule.start_time}`).toLocaleTimeString(
-                                                "en-US",
-                                                { hour: "numeric", minute: "2-digit", hour12: true }
-                                            )
-                                            : ""}
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        {/* Building + Room + QR */}
-                        <tr>
-                            <td colSpan={20}>
-                                <div style={{ display: "flex", alignItems: "center", width: "100%", marginTop: "-83px" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Bldg.:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            fontFamily: "Arial",
-                                        }}
-                                    >
-                                        {examSchedule?.building_description || ""}
-                                    </span>
-                                </div>
-                            </td>
-                            <td colSpan={20}>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        width: "100%",
-                                    }}
-                                >
-                                    <div style={{ display: "flex", alignItems: "center", marginTop: "-145px" }}>
-                                        <label style={{ fontWeight: "bold", marginRight: "10px", width: "80px" }}>
-                                            Room No.:
-                                        </label>
-                                        <span
-                                            style={{
-                                                flexGrow: 1,
-                                                borderBottom: "1px solid black",
-                                                fontFamily: "Arial",
-                                                width: "150px",
-                                            }}
-                                        >
-                                            {examSchedule?.room_description || ""}
-                                        </span>
-                                    </div>
-
-                                    {person?.applicant_number && (
-                                        <div
-                                            style={{
-                                                width: "4.5cm", // same as profile box
-                                                height: "4.5cm",
-
-                                                borderRadius: "4px",
-                                                background: "#fff",       // ✅ white background
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                position: "relative",
-                                                overflow: "hidden",
-                                                marginLeft: "10px" // spacing from "Room No."
-                                            }}
-                                        >
-                                            <QRCodeSVG
-                                                value={`http://localhost:5173/examination_profile/${person.applicant_number}`}
-                                                size={150}
-                                                level="H"
-                                            />
-
-                                            {/* ✅ Applicant Number Overlay in Middle */}
-                                            <div
-                                                style={{
-                                                    position: "absolute",
-                                                    fontSize: "12px",
-                                                    fontWeight: "bold",
-                                                    color: "maroon",
-                                                    background: "white", // white backdrop so text doesn’t blend into QR
-                                                    padding: "2px 4px",
-                                                    borderRadius: "2px",
-                                                }}
-                                            >
-                                                {person.applicant_number}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                </div>
-                            </td>
-
-                        </tr>
-
-
-
-
-                        {/* Date */}
-                        <tr>
-                            <td colSpan={40}>
-                                <div style={{ display: "flex", alignItems: "center", width: "50%", marginTop: "-145px" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Date:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            fontFamily: "Arial",
-                                        }}
-                                    >
-                                        {examSchedule?.schedule_created_at
-                                            ? new Date(examSchedule.schedule_created_at).toLocaleDateString(
-                                                "en-US",
-                                                { month: "long", day: "numeric", year: "numeric" }
-                                            )
-                                            : ""}
-                                    </span>
-                                </div>
-                            </td>
-
-
-                        </tr>
-                        {/* Scheduled By */}
-                        <tr>
-                            <td colSpan={40}>
-                                <div style={{ display: "flex", alignItems: "center", width: "50%", marginTop: "-125px" }}>
-                                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                        Scheduled by:
-                                    </label>
-                                    <span
-                                        style={{
-                                            flexGrow: 1,
-                                            borderBottom: "1px solid black",
-                                            fontFamily: "Arial",
-                                        }}
-                                    >
-                                        {scheduledBy || "N/A"}
-                                    </span>
-                                </div>
-                            </td>
-
-                        </tr>
-
-
-
-
-
-                    </tbody>
-                </table>
-
-                <table
-                    className="student-table"
-                    style={{
-
-                        borderCollapse: "collapse",
-                        fontFamily: "Arial, Helvetica, sans-serif",
-                        width: "8in",
-                        margin: "0 auto", // Center the table inside the form
-                        textAlign: "center",
-                        tableLayout: "fixed",
-                        border: "1px solid black",
-                        marginTop: "10px"
-                    }}
-                >
-                    <tbody>
-
-                        <tr>
-
-                            <td
-                                colSpan={40}
-                                style={{
-                                    textAlign: "justify",
-                                    color: "black",
-                                    padding: "8px",
-                                    lineHeight: "1.5",
-                                    textAlign: "Center",
-
-                                    fontSize: "14px",
-                                    fontFamily: "Arial, Helvetica, sans-serif",
-
-                                    fontWeight: "200px"
-                                }}
-                            >
-                                <strong>
-                                    <div>NOTE: Please bring this examination permit on the examination day together with</div>
-                                    <div>Two short bond paper, pencil w/ erasers & ballpen. Please come on decent attire</div>
-                                    <div>(no sleeveless or shorts) at least 1 hour before the examination</div>
-                                </strong>
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-                </table>
-
-                <table
-                    style={{
-                        borderCollapse: "collapse",
-                        width: "8in",
-                        margin: "0 auto",
-                        textAlign: "center",
-                    }}
-                >
-                    <tbody>
-                        <tr>
-
-
-                        </tr>
-                    </tbody>
-                </table>
             </div>
 
+            {/* ✅ Applicant Details Table */}
+            <table
+                className="student-table"
+                style={{
+                    borderCollapse: "collapse",
+                    fontFamily: "Times New Roman",
+                    fontSize: "15px",
+                    width: "8in",
+                    margin: "0 auto",
+                    tableLayout: "fixed",
+                }}
+            >
+                <tbody>
+                    {/* Applicant Number */}
+                    <tr style={{ fontFamily: "Times New Roman", fontSize: "15px" }}>
+                        <td colSpan={40}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    width: "100%",
+                                    gap: "10px",
+                                }}
+                            >
+                                <label style={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                                    Applicant No.:
+                                </label>
+                                <div
+                                    style={{
+                                        borderBottom: "1px solid black",
+                                        fontFamily: "Arial",
+                                        fontWeight: "normal",
+                                        fontSize: "15px",
+                                        minWidth: "278px",
+                                        height: "1.2em",
+                                        display: "flex",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    {person?.applicant_number}
+                                </div>
+                            </div>
+                        </td>
+
+
+                    </tr>
+
+                    {/* Name + Permit No. */}
+                    <tr>
+                        <td colSpan={20}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Name:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        fontFamily: "Arial",
+                                        minWidth: "250px",
+                                    }}
+                                >
+                                    {person?.last_name?.toUpperCase()}, {person?.first_name?.toUpperCase()}{" "}
+                                    {person?.middle_name?.toUpperCase() || ""}{" "}
+                                    {person?.extension?.toUpperCase() || ""}
+                                </span>
+                            </div>
+                        </td>
+                        <td colSpan={20}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Permit No.:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        minWidth: "200px",
+                                        fontFamily: "Arial",
+                                    }}
+                                >
+                                    {person?.applicant_number}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {/* Course + Major */}
+                    <tr>
+                        <td colSpan={20}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Course Applied:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        minWidth: "220px",
+                                        fontFamily: "Arial",
+                                    }}
+                                >
+                                    {curriculumOptions.find(
+                                        (c) =>
+                                            c.curriculum_id?.toString() === (person?.program ?? "").toString()
+                                    )?.program_description || ""}
+                                </span>
+                            </div>
+                        </td>
+                        <td colSpan={20}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px", }}>
+                                    Major:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        minWidth: "200px",
+                                        fontFamily: "Arial",
+
+                                    }}
+                                >
+                                    {curriculumOptions.find(
+                                        (c) =>
+                                            c.curriculum_id?.toString() === (person?.program ?? "").toString()
+                                    )?.major || ""}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {/* Date of Exam + Time */}
+                    <tr>
+                        <td colSpan={20}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Date of Exam:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        fontFamily: "Arial",
+                                    }}
+                                >
+                                    {examSchedule?.date_of_exam}
+                                </span>
+                            </div>
+                        </td>
+                        <td colSpan={20}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Time:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        fontFamily: "Arial",
+                                    }}
+                                >
+                                    {examSchedule
+                                        ? new Date(`1970-01-01T${examSchedule.start_time}`).toLocaleTimeString(
+                                            "en-US",
+                                            { hour: "numeric", minute: "2-digit", hour12: true }
+                                        )
+                                        : ""}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {/* Building + Room + QR */}
+                    <tr>
+                        <td colSpan={20}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%", marginTop: "-83px" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Bldg.:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        fontFamily: "Arial",
+                                    }}
+                                >
+                                    {examSchedule?.building_description || ""}
+                                </span>
+                            </div>
+                        </td>
+                        <td colSpan={20}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    width: "100%",
+                                }}
+                            >
+                                <div style={{ display: "flex", alignItems: "center", marginTop: "-145px" }}>
+                                    <label style={{ fontWeight: "bold", marginRight: "10px", width: "80px" }}>
+                                        Room No.:
+                                    </label>
+                                    <span
+                                        style={{
+                                            flexGrow: 1,
+                                            borderBottom: "1px solid black",
+                                            fontFamily: "Arial",
+                                            width: "150px",
+                                        }}
+                                    >
+                                        {examSchedule?.room_description || ""}
+                                    </span>
+                                </div>
+
+                                {person?.applicant_number && (
+                                    <div
+                                        style={{
+                                            width: "4.5cm", // same as profile box
+                                            height: "4.5cm",
+
+                                            borderRadius: "4px",
+                                            background: "#fff",       // ✅ white background
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            position: "relative",
+                                            overflow: "hidden",
+                                            marginLeft: "10px" // spacing from "Room No."
+                                        }}
+                                    >
+                                        <QRCodeSVG
+                                            value={`http://localhost:5173/examination_profile/${person.applicant_number}`}
+                                            size={150}
+                                            level="H"
+                                        />
+
+                                        {/* ✅ Applicant Number Overlay in Middle */}
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                fontSize: "12px",
+                                                fontWeight: "bold",
+                                                color: "maroon",
+                                                background: "white", // white backdrop so text doesn’t blend into QR
+                                                padding: "2px 4px",
+                                                borderRadius: "2px",
+                                            }}
+                                        >
+                                            {person.applicant_number}
+                                        </div>
+                                    </div>
+                                )}
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+
+
+
+                    {/* Date */}
+                    <tr>
+                        <td colSpan={40}>
+                            <div style={{ display: "flex", alignItems: "center", width: "50%", marginTop: "-145px" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Date:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        fontFamily: "Arial",
+                                    }}
+                                >
+                                    {examSchedule?.schedule_created_at
+                                        ? new Date(examSchedule.schedule_created_at).toLocaleDateString(
+                                            "en-US",
+                                            { month: "long", day: "numeric", year: "numeric" }
+                                        )
+                                        : ""}
+                                </span>
+                            </div>
+                        </td>
+
+
+                    </tr>
+                    {/* Scheduled By */}
+                    <tr>
+                        <td colSpan={40}>
+                            <div style={{ display: "flex", alignItems: "center", width: "50%", marginTop: "-125px" }}>
+                                <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+                                    Scheduled by:
+                                </label>
+                                <span
+                                    style={{
+                                        flexGrow: 1,
+                                        borderBottom: "1px solid black",
+                                        fontFamily: "Arial",
+                                    }}
+                                >
+                                    {scheduledBy || "N/A"}
+                                </span>
+                            </div>
+                        </td>
+
+                    </tr>
+
+
+
+
+
+                </tbody>
+            </table>
+
+            <table
+                className="student-table"
+                style={{
+
+                    borderCollapse: "collapse",
+                    fontFamily: "Arial, Helvetica, sans-serif",
+                    width: "8in",
+                    margin: "0 auto", // Center the table inside the form
+                    textAlign: "center",
+                    tableLayout: "fixed",
+                    border: "1px solid black",
+                    marginTop: "10px"
+                }}
+            >
+                <tbody>
+
+                    <tr>
+
+                        <td
+                            colSpan={40}
+                            style={{
+                                textAlign: "justify",
+                                color: "black",
+                                padding: "8px",
+                                lineHeight: "1.5",
+                                textAlign: "Center",
+
+                                fontSize: "14px",
+                                fontFamily: "Arial, Helvetica, sans-serif",
+
+                                fontWeight: "200px"
+                            }}
+                        >
+                            <strong>
+                                <div>NOTE: Please bring this examination permit on the examination day together with</div>
+                                <div>Two short bond paper, pencil w/ erasers & ballpen. Please come on decent attire</div>
+                                <div>(no sleeveless or shorts) at least 1 hour before the examination</div>
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <table
+                style={{
+                    borderCollapse: "collapse",
+                    width: "8in",
+                    margin: "0 auto",
+                    textAlign: "center",
+                }}
+            >
+                <tbody>
+                    <tr>
+
+
+                    </tr>
+                </tbody>
+            </table>
         </div>
+
+
     );
 };
 

@@ -3712,10 +3712,10 @@ app.post("/login", async (req, res) => {
 
       // ✅ Use dynamic short term in subject and body
       await transporter.sendMail({
-        from: `"${shortTerm} OTP Verification" <${process.env.EMAIL_USER}>`,
+        from: `"${shortTerm} - OTP Verification" <${process.env.EMAIL_USER}>`,
         to: user.email,
         subject: `${shortTerm} OTP Code`,
-        text: `Your ${shortTerm} OTP is: ${otp} (Valid for 5 minutes)`,
+        text: `Your ${shortTerm} - OTP is: ${otp} (Valid for 5 minutes)`,
       });
 
       console.log(`✅ Sent ${shortTerm} OTP to ${user.email}`);
@@ -3905,26 +3905,46 @@ app.post("/login_prof", async (req, res) => {
 
 //APPLICANT RESET PASSWORD ADMIN 09/06/2025
 // ---------------- Applicant: Get Info ----------------
+// ---------------- Applicant: Get Info ----------------
 app.post("/superadmin-get-applicant", async (req, res) => {
-  const { email } = req.body;
+  const { email } = req.body; // "email" field is used for search input
   try {
+    const search = `%${email}%`;
+
     const [rows] = await db.query(
-      `SELECT ua.user_id, ua.email, ua.status, 
-              pt.first_name, pt.middle_name, pt.last_name, pt.birthOfDate
+      `SELECT 
+          ant.applicant_number,
+          ua.email,
+          ua.status,
+          pt.first_name,
+          pt.middle_name,
+          pt.last_name,
+          pt.birthOfDate
        FROM user_accounts ua
        JOIN person_table pt ON ua.person_id = pt.person_id
-       WHERE ua.email = ? AND ua.role = 'applicant'`,
-      [email]
+       LEFT JOIN applicant_numbering_table ant ON ant.person_id = pt.person_id
+       WHERE ua.role = 'applicant'
+         AND (
+              pt.first_name LIKE ? OR
+              pt.middle_name LIKE ? OR
+              pt.last_name LIKE ? OR
+              ua.email LIKE ? OR
+              ant.applicant_number LIKE ?
+         )
+       LIMIT 1`,
+      [search, search, search, search, search]
     );
-    if (!rows.length) return res.status(404).json({ message: "Applicant not found" });
+
+    if (!rows.length)
+      return res.status(404).json({ message: "Applicant not found" });
 
     const user = rows[0];
     res.json({
-      user_id: user.user_id,
+      applicant_number: user.applicant_number,
       email: user.email,
-      fullName: `${user.first_name} ${user.middle_name || ""} ${user.last_name}`,
+      fullName: `${user.last_name}, ${user.first_name} ${user.middle_name || ""}`.trim(),
       birthdate: user.birthOfDate,
-      status: user.status   // ✅ now returns 0 or 1 directly
+      status: user.status,
     });
   } catch (err) {
     console.error("Get applicant error:", err);
@@ -3932,32 +3952,40 @@ app.post("/superadmin-get-applicant", async (req, res) => {
   }
 });
 
+
+// ✅ SUPER ADMIN - RESET APPLICANT PASSWORD
 app.post("/superadmin-reset-applicant", async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Check if applicant exists
+    // 🔍 Check if applicant exists
     const [rows] = await db.query(
       `SELECT user_id FROM user_accounts WHERE email = ? AND role = 'applicant'`,
       [email]
     );
 
-    if (!rows.length) return res.status(404).json({ message: "Applicant not found" });
+    if (!rows.length) {
+      return res.status(404).json({ message: "Applicant not found" });
+    }
 
-    // Generate random 8-character uppercase password
+    // 🔹 Generate random 8-character uppercase password (A–Z)
     const newPassword = Array.from({ length: 8 }, () =>
-      String.fromCharCode(Math.floor(Math.random() * 26) + 65) // A-Z
+      String.fromCharCode(Math.floor(Math.random() * 26) + 65)
     ).join("");
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Update password in DB
+    // 🔹 Update applicant password in DB
     await db.query(
       `UPDATE user_accounts SET password = ? WHERE email = ?`,
       [hashedPassword, email]
     );
 
-    // Send email with new password
+    // 🔹 Fetch short term from company settings
+    const [settings] = await db.query("SELECT short_term FROM company_settings WHERE id = 1");
+    const shortTerm = settings.length > 0 && settings[0].short_term ? settings[0].short_term : "Institution";
+
+    // 🔹 Configure email transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -3966,15 +3994,16 @@ app.post("/superadmin-reset-applicant", async (req, res) => {
       },
     });
 
+    // 🔹 Send email with institution short term
     await transporter.sendMail({
-      from: `"Information System" <${process.env.EMAIL_USER}>`,
+      from: `"${shortTerm} - Information System" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Password Reset",
       text: `Your new temporary password is: ${newPassword}\n\nPlease change it after logging in.`,
     });
 
     res.json({
-      message: "Password reset successfully. Check your email for the new password.",
+      message: `Password reset successfully. Check your email for the new password.`,
     });
   } catch (err) {
     console.error("Reset password error:", err);
@@ -4002,26 +4031,37 @@ app.post("/superadmin-update-status-applicant", async (req, res) => {
 //STUDENT RESET PASSWORD ADMIN 09/06/2025
 // ---------------- Student: Get Info ----------------
 app.post("/superadmin-get-student", async (req, res) => {
-  const { email } = req.body;
+  const { search } = req.body;
+
   try {
     const [rows] = await db3.query(
-      `SELECT ua.id, ua.email, ua.status,
-              pt.first_name, pt.middle_name, pt.last_name, pt.birthOfDate
+      `SELECT ua.status, ua.email,
+              pt.student_number, pt.first_name, pt.middle_name, pt.last_name, pt.birthOfDate
        FROM user_accounts ua
        JOIN person_table pt ON ua.person_id = pt.person_id
-       WHERE ua.email = ? AND ua.role = 'student'`,
-      [email]
+       WHERE ua.role = 'student'
+         AND (
+              pt.student_number = ? 
+              OR ua.email LIKE ? 
+              OR pt.first_name LIKE ? 
+              OR pt.last_name LIKE ? 
+              OR CONCAT(pt.first_name, ' ', pt.last_name) LIKE ?
+         )
+       LIMIT 1`,
+      [search, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`]
     );
 
-    if (!rows.length) return res.status(404).json({ message: "Student not found" });
+    if (!rows.length) {
+      return res.status(404).json({ message: "Student not found" });
+    }
 
     const user = rows[0];
     res.json({
-      user_id: user.id, // ✅ enrollment DB uses "id"
+      student_number: user.student_number,
       email: user.email,
-      fullName: `${user.first_name} ${user.middle_name || ""} ${user.last_name}`,
+      fullName: `${user.first_name} ${user.middle_name || ""} ${user.last_name}`.trim(),
       birthdate: user.birthOfDate,
-      status: user.status ?? 0
+      status: user.status ?? 0,
     });
   } catch (err) {
     console.error("Get student error:", err);
@@ -4051,28 +4091,117 @@ app.post("/superadmin-update-status-student", async (req, res) => {
 
 //REGISTRAR RESET PASSWORD ADMIN 09/06/2025
 // ---------------- Registrar: Get Info ----------------
+// ---------------- Registrar: Get Info ----------------
 app.post("/superadmin-get-registrar", async (req, res) => {
-  const { email } = req.body;
+  const { search } = req.body; // renamed from email → more general
+  if (!search) {
+    return res.status(400).json({ message: "Search input is required" });
+  }
 
   try {
-    const [rows] = await db3.query(
-      "SELECT * FROM user_accounts WHERE email = ? AND role = 'registrar'",
-      [email]
-    );
+    const query = `
+      SELECT employee_id, email, status, first_name, middle_name, last_name
+      FROM user_accounts
+      WHERE role = 'registrar'
+      AND (
+        employee_id LIKE ? OR
+        email LIKE ? OR
+        CONCAT(first_name, ' ', middle_name, ' ', last_name) LIKE ? OR
+        CONCAT(first_name, ' ', last_name) LIKE ?
+      )
+      ORDER BY id DESC
+      LIMIT 1
+    `;
 
-    if (!rows.length) return res.status(404).json({ message: "Registrar not found" });
+    const likeSearch = `%${search}%`;
+    const [rows] = await db3.query(query, [
+      likeSearch,
+      likeSearch,
+      likeSearch,
+      likeSearch,
+    ]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Registrar not found" });
+    }
 
     const user = rows[0];
+    const fullName = [user.first_name, user.middle_name, user.last_name]
+      .filter(Boolean)
+      .join(" ");
+
     res.json({
-      user_id: user.id,
+      employee_id: user.employee_id || "N/A",
       email: user.email,
-      status: user.status
+      fullName,
+      status: user.status,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching registrar info:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// ---------------- Registrar: Reset Password ----------------
+app.post("/forgot-password-registrar", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // 🔍 Check if registrar exists
+    const [rows] = await db3.query(
+      "SELECT email FROM user_accounts WHERE email = ? AND role = 'registrar'",
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Registrar not found." });
+    }
+
+    // 🔹 Fetch short term from company settings
+    const [settings] = await db.query("SELECT short_term FROM company_settings WHERE id = 1");
+    const shortTerm =
+      settings.length > 0 && settings[0].short_term ? settings[0].short_term : "Institution";
+
+    // 🔹 Generate random 8-character uppercase password (A–Z)
+    const newPassword = Array.from({ length: 8 }, () =>
+      String.fromCharCode(Math.floor(Math.random() * 26) + 65)
+    ).join("");
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 🔹 Update password in user_accounts
+    await db3.query("UPDATE user_accounts SET password = ? WHERE email = ?", [
+      hashedPassword,
+      email,
+    ]);
+
+    // 🔹 Configure email transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // 🔹 Send standardized email
+    await transporter.sendMail({
+      from: `"${shortTerm} - Information System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Password Reset",
+      text: `Your new temporary password is: ${newPassword}\n\nPlease change it after logging in.`,
+    });
+
+    res.json({
+      message: "Password reset successfully. Check your email for the new password.",
+    });
+  } catch (error) {
+    console.error("Reset error (registrar):", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 // ---------------- Registrar: Reset Password ----------------
 // FORGOT PASSWORD (handles student, registrar, faculty)
 app.post("/forgot-password", async (req, res) => {
@@ -4186,32 +4315,56 @@ app.post("/superadmin-update-status-registrar", async (req, res) => {
 });
 
 //FACULTY RESET PASSWORD ADMIN 09/06/2025
-// ---------------- Faculty: Get Info ----------------
+// ---------------- Faculty: Get Info (Search by Employee ID, Name, or Email) ----------------
 app.post("/superadmin-get-faculty", async (req, res) => {
-  const { email } = req.body;
+  const { search } = req.body;
+
   try {
     const [rows] = await db3.query(
-      `SELECT prof_id AS user_id, fname AS first_name, mname AS middle_name, lname AS last_name, 
-              email, status
-       FROM prof_table
-       WHERE email = ? AND role = 'faculty'`,
-      [email]
+      `
+      SELECT 
+        prof_id,
+        person_id AS employee_id,
+        fname AS first_name,
+        mname AS middle_name,
+        lname AS last_name,
+        email,
+        status
+      FROM prof_table
+      WHERE role = 'faculty'
+      AND (
+        person_id LIKE ? 
+        OR fname LIKE ? 
+        OR mname LIKE ? 
+        OR lname LIKE ? 
+        OR email LIKE ?
+      )
+      LIMIT 1
+      `,
+      Array(5).fill(`%${search}%`)
     );
 
-    if (!rows.length) return res.status(404).json({ message: "Faculty not found" });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Faculty not found" });
+    }
 
     const user = rows[0];
+    const fullName = [user.first_name, user.middle_name, user.last_name]
+      .filter(Boolean)
+      .join(" ");
+
     res.json({
-      user_id: user.user_id,
+      employee_id: user.employee_id,
       email: user.email,
-      fullName: `${user.first_name} ${user.middle_name || ""} ${user.last_name}`,
-      status: user.status ?? 0
+      fullName,
+      status: user.status ?? 0,
     });
   } catch (err) {
-    console.error("Get faculty error:", err);
+    console.error("Error fetching faculty info:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 // ---------------- Faculty: Reset Password ----------------
 app.post("/superadmin-reset-faculty", async (req, res) => {
   const { email } = req.body;
@@ -9878,13 +10031,11 @@ app.get("/get_active_school_years", async (req, res) => {
 });
 
 // 09/06/2025 UPDATE
-/* Student Reset Password (Admin Side) */
-/* Student Reset Password (Admin Side) */
 app.post("/forgot-password-student", async (req, res) => {
   try {
     const { email } = req.body;
 
-    // ✅ Get user info
+    // 🔍 Check if student exists
     const [rows] = await db3.query(
       `SELECT ua.email, p.campus
        FROM user_accounts ua
@@ -9897,22 +10048,25 @@ app.post("/forgot-password-student", async (req, res) => {
       return res.status(404).json({ success: false, message: "Email not found." });
     }
 
-    // ✅ Fetch company name from settings
-    const [[company]] = await db.query(
-      "SELECT company_name FROM company_settings WHERE id = 1"
-    );
-    const companyName = company?.company_name || "Admission Office";
+    // 🔹 Fetch short term from company settings
+    const [settings] = await db.query("SELECT short_term FROM company_settings WHERE id = 1");
+    const shortTerm =
+      settings.length > 0 && settings[0].short_term ? settings[0].short_term : "Institution";
 
-    // ✅ Generate and hash new password
-    const newPassword = Math.random().toString(36).slice(-8).toUpperCase();
-    const hashed = await bcrypt.hash(newPassword, 10);
+    // 🔹 Generate random 8-character uppercase password (A–Z)
+    const newPassword = Array.from({ length: 8 }, () =>
+      String.fromCharCode(Math.floor(Math.random() * 26) + 65)
+    ).join("");
 
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 🔹 Update student password in DB
     await db3.query("UPDATE user_accounts SET password = ? WHERE email = ?", [
-      hashed,
+      hashedPassword,
       email,
     ]);
 
-    // ✅ Create transporter
+    // 🔹 Configure email transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -9921,22 +10075,18 @@ app.post("/forgot-password-student", async (req, res) => {
       },
     });
 
-    // ✅ Dynamic mail options
-    const mailOptions = {
-      from: `"${companyName} Enrollment Notice" <${process.env.EMAIL_USER}>`,
+    // 🔹 Send email with institutional short term
+    await transporter.sendMail({
+      from: `"${shortTerm} - Information System" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Your Password has been Reset!",
-      text: `Hi,
+      subject: "Password Reset",
+      text: `Your new temporary password is: ${newPassword}\n\nPlease change it after logging in.`,
+    });
 
-Please login with your new password: ${newPassword}
-
-Yours truly,
-${companyName}`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res.json({ success: true, message: "New password sent to your email." });
+    res.json({
+      success: true,
+      message: "Password reset successfully. Check your email for the new password.",
+    });
   } catch (error) {
     console.error("Reset error (student):", error);
     res.status(500).json({ success: false, message: "Internal server error." });

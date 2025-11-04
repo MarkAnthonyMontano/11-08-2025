@@ -201,7 +201,7 @@ const OfficeOfTheRegistrar = () => {
   }
 
   html, body {
-    margin: 0;
+    margin: 1;
     padding: 0;
     width: 210mm;
     height: 297mm;
@@ -210,7 +210,7 @@ const OfficeOfTheRegistrar = () => {
 
   *, *::before, *::after {
     box-sizing: border-box;
-    margin: 0;
+    margin: 1;
     padding: 0;
   }
 
@@ -220,9 +220,6 @@ const OfficeOfTheRegistrar = () => {
   padding: 10px ;
 }
 
-  .student-table {
-    margin-top: 0 !important;
-  }
 
   button {
     display: none;
@@ -467,20 +464,21 @@ if (loading || hasAccess === null) {
                                             {campusAddress}
                                         </div>
                                     )}
-                                    <br />
+
 
                                     <div style={{
-                                        fontSize: "15px",
+                                        fontSize: "14px",
                                         fontFamily: "Arial",
                                         fontWeight: "bold",
                                         marginBottom: "5px",
+                                        marginTop: "5px",
 
                                         marginLeft: "-145px",
                                         fontFamily: "Times new roman",
                                         textAlign: "center",
                                     }}>
                                         OFFICE OF THE REGISTRAR<br />
-                                        APPLICATION FOR EARIST COLLEGE ADMISSION
+                                        APPLICATION FOR {shortTerm ? shortTerm.toUpperCase() : ""} COLLEGE ADMISSION
                                     </div>
 
 
@@ -496,7 +494,7 @@ if (loading || hasAccess === null) {
                             borderCollapse: "collapse",
                             fontFamily: "Arial, Helvetica, sans-serif",
                             width: "8in",
-                            marginTop: "-50px",
+                            marginTop: "-90px",
                             margin: "0 auto",
                             textAlign: "center",
                             tableLayout: "fixed",
@@ -511,9 +509,9 @@ if (loading || hasAccess === null) {
                                     colSpan={23}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
-                                        marginTop: -5,
+                                        marginTop: -10,
 
                                         textAlign: "left",
 
@@ -530,7 +528,7 @@ if (loading || hasAccess === null) {
                                         fontFamily: "Times New Roman",
                                         fontSize: "14px",
                                         paddingTop: "5px",  // you can reduce this if needed
-                                        marginTop: -5,
+                                        marginTop: -10,
                                         textAlign: "right",
 
                                     }}
@@ -722,7 +720,7 @@ if (loading || hasAccess === null) {
 
                             </tr>
                             <tr>
-                                <td colSpan="40" style={{ height: "20px" }}>
+                                <td colSpan="40" style={{ height: "10px" }}>
 
                                 </td>
                             </tr>
@@ -733,7 +731,7 @@ if (loading || hasAccess === null) {
                                     colSpan={10}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",
                                         marginTop: 0,
                                         textAlign: "left",
@@ -791,7 +789,7 @@ if (loading || hasAccess === null) {
                                     colSpan={10}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -847,7 +845,7 @@ if (loading || hasAccess === null) {
                                     colSpan={40}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -1942,7 +1940,7 @@ if (loading || hasAccess === null) {
                                     colSpan={13}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -1952,7 +1950,7 @@ if (loading || hasAccess === null) {
                                     }}
                                 >
                                     <span style={{ fontWeight: "bold", marginRight: "30px", textAlign: "left" }}>
-                                        Junior High School
+                                        Junior High School:
                                     </span>{" "}
 
                                 </td>
@@ -1994,7 +1992,7 @@ if (loading || hasAccess === null) {
                                     colSpan={9}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -2003,7 +2001,7 @@ if (loading || hasAccess === null) {
 
                                     }}
                                 >
-                                    Voc'l. School
+                                    Voc'l. School:
 
                                 </td>
                                 <td
@@ -2202,7 +2200,7 @@ if (loading || hasAccess === null) {
                                     colSpan={13}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -2213,7 +2211,7 @@ if (loading || hasAccess === null) {
 
                                     }}
                                 >
-                                    Senior High School
+                                    Senior High School:
                                 </td>
                                 <td
                                     colSpan={7}
@@ -2255,7 +2253,7 @@ if (loading || hasAccess === null) {
                                     colSpan={9}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -2264,7 +2262,7 @@ if (loading || hasAccess === null) {
 
                                     }}
                                 >
-                                    Graduate Studies
+                                    Graduate Studies:
 
                                 </td>
                                 <td
@@ -2720,7 +2718,7 @@ if (loading || hasAccess === null) {
                                     colSpan={7}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",

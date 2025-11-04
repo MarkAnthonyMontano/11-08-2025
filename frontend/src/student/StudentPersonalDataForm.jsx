@@ -203,7 +203,7 @@ const StudentPersonalDataForm = () => {
             }
 
             .student-table {
-              margin-top: -30px !important;
+              margin-top: 15px !important;
             }
 
             input[type="checkbox"] {
@@ -281,8 +281,6 @@ const StudentPersonalDataForm = () => {
             e.stopPropagation();
         }
     });
-
-
 
     return (
         <Box

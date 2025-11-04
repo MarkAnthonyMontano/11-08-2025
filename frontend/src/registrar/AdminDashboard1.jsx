@@ -1924,23 +1924,29 @@ const AdminDashboard1 = () => {
 
               {/* LRN Input */}
               <TextField
-                disabled
                 id="lrnNumber"
                 name="lrnNumber"
                 required={person.lrnNumber !== "No LRN Number"}
                 label="Enter your LRN Number"
-                value={person.lrnNumber === "No LRN Number" ? "" : person.lrnNumber ?? ""}
+                value={
+                  person.lrnNumber === "No LRN Number"
+                    ? ""
+                    : person.lrnNumber ?? ""
+                }
                 onChange={handleChange}
                 onBlur={handleBlur}
-
                 size="small"
                 sx={{ width: 220 }}
-                InputProps={{ sx: { height: 40, readOnly: true } }}
-                inputProps={{ style: { height: 40, padding: "10.5px 14px" } }}
+                InputProps={{
+                  readOnly: true, // ✅ makes the field non-editable but keeps normal styling
+                  sx: { height: 40 },
+                }}
+                inputProps={{
+                  style: { height: 40, padding: "10.5px 14px" },
+                }}
                 error={errors.lrnNumber}
                 helperText={errors.lrnNumber ? "This field is required." : ""}
               />
-
 
               <FormControlLabel
                 control={
@@ -1970,7 +1976,6 @@ const AdminDashboard1 = () => {
 
               {/* Gender */}
               <TextField
-                readOnly
                 select
                 size="small"
                 label="Gender"
@@ -1989,13 +1994,18 @@ const AdminDashboard1 = () => {
                 onBlur={handleBlur}
                 error={Boolean(errors.gender)}
                 sx={{ width: 150 }}
-                InputProps={{ sx: { height: 40, } }}
+                InputProps={{
+                  readOnly: true, // ✅ makes it non-editable (read-only)
+                  sx: { height: 40 },
+                }}
                 inputProps={{ style: { height: 40 } }}
               >
                 <MenuItem value=""><em>Select Gender</em></MenuItem>
                 <MenuItem value="0">MALE</MenuItem>
                 <MenuItem value="1">FEMALE</MenuItem>
               </TextField>
+
+
 
               {errors.gender && (
                 <Typography color="error" variant="caption" ml={1}>
@@ -2099,7 +2109,7 @@ const AdminDashboard1 = () => {
                   Birth of Date
                 </Typography>
                 <TextField
-                  disabled
+                  InputProps={{ readOnly: true }}
                   fullWidth
                   size="small"
                   type="date"
@@ -2625,6 +2635,7 @@ const AdminDashboard1 = () => {
               <FormControl fullWidth size="small" required error={!!errors.presentMunicipality}>
                 <InputLabel id="present-municipality-label">Municipality</InputLabel>
                 <Select
+                  readOnly
                   labelId="present-municipality-label"
                   name="presentMunicipality"
                   value={person.presentMunicipality ?? ""}
@@ -2657,6 +2668,7 @@ const AdminDashboard1 = () => {
               <FormControl fullWidth size="small" required error={!!errors.presentBarangay}>
                 <InputLabel id="present-barangay-label">Barangay</InputLabel>
                 <Select
+                  readOnly
                   labelId="present-barangay-label"
                   name="presentBarangay"
                   value={person.presentBarangay ?? ""}
@@ -2710,14 +2722,14 @@ const AdminDashboard1 = () => {
               control={
                 <Checkbox
                   disabled
-                  name="same_as_present_address"
-                  checked={person.same_as_present_address === 1}
+                  name="sameAsPresentAddress"
+                  checked={person.sameAsPresentAddress === 1}
                   onChange={(e) => {
                     const checked = e.target.checked;
 
                     const updatedPerson = {
                       ...person,
-                      same_as_present_address: checked ? 1 : 0,
+                      sameAsPresentAddress: checked ? 1 : 0,
                     };
 
                     if (checked) {
@@ -3210,7 +3222,7 @@ const AdminDashboard1 = () => {
               <Button
                 variant="contained"
                 onClick={() => {
-                  handleUpdate();
+
                   navigate("/admin_dashboard2");
                 }}
                 endIcon={

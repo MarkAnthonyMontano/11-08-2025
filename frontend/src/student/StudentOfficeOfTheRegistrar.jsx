@@ -158,7 +158,7 @@ const StudentOfficeOfTheRegistrar = () => {
   }
 
   html, body {
-    margin: 0;
+    margin: 1;
     padding: 0;
     width: 210mm;
     height: 297mm;
@@ -167,7 +167,7 @@ const StudentOfficeOfTheRegistrar = () => {
 
   *, *::before, *::after {
     box-sizing: border-box;
-    margin: 0;
+    margin: 1;
     padding: 0;
   }
 
@@ -177,9 +177,6 @@ const StudentOfficeOfTheRegistrar = () => {
   padding: 10px ;
 }
 
-  .student-table {
-    margin-top: 0 !important;
-  }
 
   button {
     display: none;
@@ -290,10 +287,10 @@ const StudentOfficeOfTheRegistrar = () => {
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
-              {/* ✅ PRINT BUTTON (unchanged) */}
-                <button
-                  onClick={printDiv}
-                  style={{
+            {/* ✅ PRINT BUTTON (unchanged) */}
+            <button
+                onClick={printDiv}
+                style={{
                     marginBottom: "1rem",
                     padding: "10px 20px",
                     border: "2px solid black",
@@ -305,24 +302,24 @@ const StudentOfficeOfTheRegistrar = () => {
                     fontSize: "16px",
                     fontWeight: "bold",
                     transition: "background-color 0.3s, transform 0.2s",
-                  }}
-                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#d3d3d3")}
-                  onMouseLeave={(e) => (e.target.style.backgroundColor = "#f0f0f0")}
-                  onMouseDown={(e) => (e.target.style.transform = "scale(0.95)")}
-                  onMouseUp={(e) => (e.target.style.transform = "scale(1)")}
-                >
-                  <span
+                }}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#d3d3d3")}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = "#f0f0f0")}
+                onMouseDown={(e) => (e.target.style.transform = "scale(0.95)")}
+                onMouseUp={(e) => (e.target.style.transform = "scale(1)")}
+            >
+                <span
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
                     }}
-                  >
+                >
                     <FcPrint size={20} />
                     Print Office of the Registrar
-                  </span>
-                </button>
-               
+                </span>
+            </button>
+
 
             <Container>
                 <div ref={divToPrintRef}>
@@ -413,20 +410,21 @@ const StudentOfficeOfTheRegistrar = () => {
                                             {campusAddress}
                                         </div>
                                     )}
-                                    <br />
+
 
                                     <div style={{
-                                        fontSize: "15px",
+                                        fontSize: "14px",
                                         fontFamily: "Arial",
                                         fontWeight: "bold",
                                         marginBottom: "5px",
+                                        marginTop: "5px",
 
                                         marginLeft: "-145px",
                                         fontFamily: "Times new roman",
                                         textAlign: "center",
                                     }}>
                                         OFFICE OF THE REGISTRAR<br />
-                                        APPLICATION FOR EARIST COLLEGE ADMISSION
+                                        APPLICATION FOR {shortTerm ? shortTerm.toUpperCase() : ""} COLLEGE ADMISSION
                                     </div>
 
 
@@ -442,7 +440,7 @@ const StudentOfficeOfTheRegistrar = () => {
                             borderCollapse: "collapse",
                             fontFamily: "Arial, Helvetica, sans-serif",
                             width: "8in",
-                            marginTop: "-50px",
+                            marginTop: "-90px",
                             margin: "0 auto",
                             textAlign: "center",
                             tableLayout: "fixed",
@@ -457,9 +455,9 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={23}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
-                                        marginTop: -5,
+                                        marginTop: -10,
 
                                         textAlign: "left",
 
@@ -476,7 +474,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                         fontFamily: "Times New Roman",
                                         fontSize: "14px",
                                         paddingTop: "5px",  // you can reduce this if needed
-                                        marginTop: -5,
+                                        marginTop: -10,
                                         textAlign: "right",
 
                                     }}
@@ -668,7 +666,7 @@ const StudentOfficeOfTheRegistrar = () => {
 
                             </tr>
                             <tr>
-                                <td colSpan="40" style={{ height: "20px" }}>
+                                <td colSpan="40" style={{ height: "10px" }}>
 
                                 </td>
                             </tr>
@@ -679,7 +677,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={10}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",
                                         marginTop: 0,
                                         textAlign: "left",
@@ -737,7 +735,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={10}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -793,7 +791,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={40}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -1888,7 +1886,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={13}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -1898,7 +1896,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     }}
                                 >
                                     <span style={{ fontWeight: "bold", marginRight: "30px", textAlign: "left" }}>
-                                        Junior High School
+                                        Junior High School:
                                     </span>{" "}
 
                                 </td>
@@ -1940,7 +1938,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={9}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -1949,7 +1947,7 @@ const StudentOfficeOfTheRegistrar = () => {
 
                                     }}
                                 >
-                                    Voc'l. School
+                                    Voc'l. School:
 
                                 </td>
                                 <td
@@ -2148,7 +2146,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={13}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -2159,7 +2157,7 @@ const StudentOfficeOfTheRegistrar = () => {
 
                                     }}
                                 >
-                                    Senior High School
+                                    Senior High School:
                                 </td>
                                 <td
                                     colSpan={7}
@@ -2201,7 +2199,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={9}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",
@@ -2210,7 +2208,7 @@ const StudentOfficeOfTheRegistrar = () => {
 
                                     }}
                                 >
-                                    Graduate Studies
+                                    Graduate Studies:
 
                                 </td>
                                 <td
@@ -2666,7 +2664,7 @@ const StudentOfficeOfTheRegistrar = () => {
                                     colSpan={7}
                                     style={{
                                         fontFamily: "Times New Roman",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         paddingTop: "5px",  // you can reduce this if needed
                                         marginTop: 0,
                                         textAlign: "left",

@@ -635,6 +635,7 @@ const ExaminationProfile = ({ personId }) => {
                                                                     letterSpacing: "1px",
                                                                     fontSize: "20px",
                                                                     fontFamily: "Times new roman",
+                                                                    fontWeight: "bold"
                                                                 }}
                                                             >
                                                                 {firstLine}
@@ -645,6 +646,7 @@ const ExaminationProfile = ({ personId }) => {
                                                                         letterSpacing: "1px",
                                                                         fontSize: "20px",
                                                                         fontFamily: "Times new roman",
+                                                                        fontWeight: "bold"
                                                                     }}
                                                                 >
                                                                     <b>{secondLine}</b>
