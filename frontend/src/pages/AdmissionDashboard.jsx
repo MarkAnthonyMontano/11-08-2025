@@ -141,7 +141,7 @@ const AdmissionDashboardPanel = () => {
       ],
     },
     {
-      label: "MEDICAL AND DENTAL SECTION",
+      label: "MEDICAL AND DENTAL SERVICES",
       items: [
         { title: "APPLICANT LIST", link: "/medical_applicant_list", icon: <ListAltOutlined className="text-maroon-500 text-2xl" /> },
         { title: "PERSONAL INFORMATION", link: "/medical_dashboard1", icon: <AccountCircle className="text-maroon-500 text-2xl" /> },

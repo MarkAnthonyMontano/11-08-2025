@@ -81,6 +81,7 @@ const AssignScheduleToApplicants = () => {
   const [persons, setPersons] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [person, setPerson] = useState({
     campus: "",
     last_name: "",
@@ -426,7 +427,7 @@ const AssignScheduleToApplicants = () => {
       setSnack({ open: true, message: "No unassigned applicants available.", severity: "warning" });
       return;
     }
-
+    
     socket.emit("update_schedule", { schedule_id: selectedSchedule, applicant_numbers: unassigned });
 
     socket.once("update_schedule_result", (res) => {
@@ -486,10 +487,11 @@ const AssignScheduleToApplicants = () => {
 
   const confirmSendEmails = () => {
     setConfirmOpen(false);
-    setLoading(true);
+    setLoading2(true);
+
     if (!selectedSchedule) {
       setSnack({ open: true, message: "Please select a schedule first.", severity: "warning" });
-      setLoading(false)
+      setLoading2(false);
       return;
     }
 
@@ -499,7 +501,7 @@ const AssignScheduleToApplicants = () => {
 
     if (assignedApplicants.length === 0) {
       setSnack({ open: true, message: "No applicants assigned to this schedule.", severity: "warning" });
-      setLoading(false);
+      setLoading2(false);
       return;
     }
 
@@ -509,10 +511,15 @@ const AssignScheduleToApplicants = () => {
       user_person_id: localStorage.getItem("person_id") // ✅ use logged in user
     });
 
-    setLoading(false)
+    socket.once("send_schedule_emails_result", (res) => {
+      if (res.success) {
+        setSnack({ open: true, message: "Schedule sent successfully!", severity: "success" });
+      } else {
+        setSnack({ open: true, message: res.error || "Failed to send schedule in emails.", severity: "error" });
+      }
+      setLoading2(false);
+    });
   };
-
-
 
   const [schedules, setSchedules] = useState([]);
 
@@ -663,23 +670,23 @@ const AssignScheduleToApplicants = () => {
     }
   }, [filteredPersons.length, totalPages]);
 
-  // 🔒 Disable right-click
-  document.addEventListener('contextmenu', (e) => e.preventDefault());
+  // // 🔒 Disable right-click
+  // document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  // 🔒 Block DevTools shortcuts + Ctrl+P silently
-  document.addEventListener('keydown', (e) => {
-    const isBlockedKey =
-      e.key === 'F12' || // DevTools
-      e.key === 'F11' || // Fullscreen
-      (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'j')) || // Ctrl+Shift+I/J
-      (e.ctrlKey && e.key.toLowerCase() === 'u') || // Ctrl+U (View Source)
-      (e.ctrlKey && e.key.toLowerCase() === 'p');   // Ctrl+P (Print)
+  // // 🔒 Block DevTools shortcuts + Ctrl+P silently
+  // document.addEventListener('keydown', (e) => {
+  //   const isBlockedKey =
+  //     e.key === 'F12' || // DevTools
+  //     e.key === 'F11' || // Fullscreen
+  //     (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'j')) || // Ctrl+Shift+I/J
+  //     (e.ctrlKey && e.key.toLowerCase() === 'u') || // Ctrl+U (View Source)
+  //     (e.ctrlKey && e.key.toLowerCase() === 'p');   // Ctrl+P (Print)
 
-    if (isBlockedKey) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  });
+  //   if (isBlockedKey) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //   }
+  // });
 
 
   // Put this at the very bottom before the return 
@@ -1462,7 +1469,7 @@ const AssignScheduleToApplicants = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <LoadingOverlay open={loading} message="Sending emails, please wait..." />
+      <LoadingOverlay open={loading2} message="Sending emails, please wait..." />
     </Box>
   );
 };

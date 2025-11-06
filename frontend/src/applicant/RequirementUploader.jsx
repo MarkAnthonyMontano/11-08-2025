@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { SettingsContext } from "../App";
 import {
   Box,
   Button,
@@ -22,6 +23,25 @@ import ErrorIcon from "@mui/icons-material/Error";
 
 
 const RequirementUploader = () => {
+  const settings = useContext(SettingsContext);
+  const [fetchedLogo, setFetchedLogo] = useState(null);
+  const [companyName, setCompanyName] = useState("");
+
+  useEffect(() => {
+    if (settings) {
+      // ✅ load dynamic logo
+      if (settings.logo_url) {
+        setFetchedLogo(`http://localhost:5000${settings.logo_url}`);
+      } else {
+        setFetchedLogo(EaristLogo);
+      }
+
+      // ✅ load dynamic name + address
+      if (settings.company_name) setCompanyName(settings.company_name);
+      if (settings.campus_address) setCampusAddress(settings.campus_address);
+    }
+  }, [settings]);
+
   const [requirements, setRequirements] = useState([]); // ✅ dynamic requirements
 
   const [uploads, setUploads] = useState([]);
@@ -47,38 +67,63 @@ const RequirementUploader = () => {
 
   const fetchUploads = async (personId) => {
     try {
+      // ✅ Fetch user's uploaded files
       const res = await axios.get("http://localhost:5000/uploads", {
         headers: { "x-person-id": personId },
       });
-
       const uploadsData = res.data;
       setUploads(uploadsData);
 
+      // ✅ Map uploaded files to their requirement IDs
       const rebuiltSelectedFiles = {};
       uploadsData.forEach((upload) => {
         rebuiltSelectedFiles[upload.requirements_id] = upload.original_name;
       });
       setSelectedFiles(rebuiltSelectedFiles);
 
-      // ✅ Simple completion logic — replace with your own rule if needed
-      const allRequired = uploadsData.length > 0; // or >= some number you expect
+      // ✅ Get all verifiable requirements from DB
+      const reqRes = await axios.get("http://localhost:5000/requirements");
+      const verifiableRequirements = reqRes.data.filter((r) => r.is_verifiable === 1);
 
-      // ✅ Show Congratulations only if all uploads are now complete
-      if (!allRequirementsCompleted && allRequired) {
+      // ✅ Compare uploaded vs required
+      const uploadedIds = new Set(uploadsData.map((u) => u.requirements_id));
+      const allRequiredUploaded =
+        verifiableRequirements.every((r) => uploadedIds.has(r.id)) &&
+        verifiableRequirements.length > 0;
+
+      // ✅ Only show Congratulations if all required are uploaded (not every upload)
+      if (!allRequirementsCompleted && allRequiredUploaded) {
         setSnack({
           open: true,
-          message:
-            "🎉 Congratulations! You have successfully submitted your Application at Eulogio Amang Rodriguez Institute of Science and Technology.",
+          message: `🎉 Congratulations! You have successfully submitted your Application at ${companyName}.`,
           severity: "success",
         });
       }
 
-      setAllRequirementsCompleted(allRequired);
-      localStorage.setItem("requirementsCompleted", allRequired ? "1" : "0");
+      // ✅ Update completion state
+      setAllRequirementsCompleted(allRequiredUploaded);
+      localStorage.setItem("requirementsCompleted", allRequiredUploaded ? "1" : "0");
     } catch (err) {
       console.error("❌ Fetch uploads failed:", err);
     }
   };
+
+
+  const [totalRequirements, setTotalRequirements] = useState(0);
+
+
+  useEffect(() => {
+    const fetchTotalRequirements = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/total-requirements");
+        setTotalRequirements(res.data.total);
+      } catch (err) {
+        console.error("Error fetching total requirements:", err);
+      }
+    };
+
+    fetchTotalRequirements();
+  }, []);
 
 
 
@@ -302,10 +347,10 @@ const RequirementUploader = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-         
+
 
           mb: 2,
-        
+
         }}
       >
         <Typography
@@ -316,7 +361,7 @@ const RequirementUploader = () => {
             fontSize: '36px',
           }}
         >
-        UPLOAD REQUIREMENTS
+          UPLOAD REQUIREMENTS
         </Typography>
 
 

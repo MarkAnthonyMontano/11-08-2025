@@ -19,7 +19,7 @@ import { Link } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 
-const FacultyDashboard = () => {
+const FacultyDashboard = ({ profileImage, setProfileImage }) => {
   const [userID, setUserID] = useState("");
   const [user, setUser] = useState("");
   const [userRole, setUserRole] = useState("");
@@ -27,6 +27,7 @@ const FacultyDashboard = () => {
   const [message, setMessage] = useState("");
   const [personData, setPerson] = useState({
     prof_id: "",
+    person_id: "",
     lname: "",
     fname: "",
     mname: "",
@@ -60,6 +61,7 @@ const FacultyDashboard = () => {
       const first = res.data[0];
       const profInfo = {
         prof_id: first.prof_id,
+        person_id: first.person_id,
         fname: first.fname,
         mname: first.mname,
         lname: first.lname,
@@ -173,29 +175,44 @@ const FacultyDashboard = () => {
     year: "numeric",
   });
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const handleFileChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
+  try {
+    const person_id = localStorage.getItem("person_id");
+    const role = localStorage.getItem("role");
+
+    // ✅ Get user_account_id
+    const res = await axios.get(
+      `http://localhost:5000/api/get_prof_account_id/${person_id}`
+    );
+
+    const user_account_id = res.data.user_account_id;
+    
     const formData = new FormData();
-    formData.append("profileImage", file);
-
-    try {
-      await axios.put(
-        `http://localhost:5000/api/update_profile_image/${personData.person_id}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      // Refresh data after update
-      const role = localStorage.getItem("role");
-      const res = await axios.get(
-        `http://localhost:5000/api/person_data/${personData.person_id}/${role}`
-      );
-      setPerson(res.data);
-    } catch (err) {
-      console.error("Upload failed:", err);
-    }
-  };
+    
+    formData.append("profile_picture", file);
+    
+    // ✅ Upload image using same backend API
+    await axios.post(
+      `http://localhost:5000/update_faculty/${user_account_id}`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    
+    // ✅ Refresh profile info to display the new image
+    const updated = await axios.get(
+      `http://localhost:5000/api/person_data/${person_id}/${role}`
+    );
+    
+    setPerson(updated.data);
+    const baseUrl = `http://localhost:5000/uploads/${updated.data.profile_image}`;
+    setProfileImage(`${baseUrl}?t=${Date.now()}`);
+  } catch (error) {
+    console.error("❌ Upload failed:", error);
+  }
+};
 
   return (
     <Box
@@ -238,11 +255,7 @@ const FacultyDashboard = () => {
                     onMouseLeave={() => setHovered(false)}
                   >
                     <Avatar
-                      src={
-                        personData?.profile_image
-                          ? `http://localhost:5000/uploads/${personData.profile_image}`
-                          : undefined
-                      }
+                      src={profileImage || `http://localhost:5000/uploads/${personData?.profile_image}`}
                       alt={personData?.fname}
                       sx={{
                         width: 90,
@@ -293,7 +306,7 @@ const FacultyDashboard = () => {
                     </Typography>
 
                     <Typography variant="body1" color="black" fontSize={20}>
-                      <b>Employee ID:</b> {personData?.employee_id || "N/A"}
+                      <b>Employee ID:</b> {personData?.person_id || "N/A"}
                     </Typography>
                   </Box>
                 </Box>

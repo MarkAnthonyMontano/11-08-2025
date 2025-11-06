@@ -3,7 +3,6 @@ import { SettingsContext } from "../App";
 import axios from "axios";
 import { QRCodeSVG } from "qrcode.react";
 import EaristLogo from "../assets/EaristLogo.png";
-import EaristLogoBW from "../assets/earistblackandwhite.png";
 import "../styles/Print.css";
 
 // ✅ Accept personId as a prop

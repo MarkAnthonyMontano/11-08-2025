@@ -325,7 +325,7 @@ function App() {
 
 
                     <Route path="/registrar_dashboard" element={<ProtectedRoute><RegistrarDashboard profileImage={profileImage} setProfileImage={setProfileImage}/></ProtectedRoute>} />
-                    <Route path="/faculty_dashboard" element={<ProtectedRoute allowedRoles={['faculty']}><FacultyDashboard /></ProtectedRoute>} />
+                    <Route path="/faculty_dashboard" element={<ProtectedRoute allowedRoles={['faculty']}><FacultyDashboard profileImage={profileImage} setProfileImage={setProfileImage}/></ProtectedRoute>} />
                     <Route path="/applicant_dashboard" element={<ProtectedRoute><ApplicantDashboard profileImage={profileImage} setProfileImage={setProfileImage}/></ProtectedRoute>} />
                     <Route path="/register_prof" element={<ProtectedRoute><RegisterProf /></ProtectedRoute>} />
                     <Route path="/register_registrar" element={<ProtectedRoute><RegisterRegistrar /></ProtectedRoute>} />
@@ -378,7 +378,7 @@ function App() {
                     <Route path="/faculty_evaluation" element={<ProtectedRoute><FacultyEvaluation /></ProtectedRoute>} />
                     <Route path="/faculty_masterlist" element={<ProtectedRoute><FacultyMasterList /></ProtectedRoute>} />
                     <Route path="/program_evaluation" element={<ProtectedRoute><ProgramEvaluation /></ProtectedRoute>} />
-                    <Route path="/student_dashboard" element={<ProtectedRoute allowedRoles={'student'}><StudentDashboard /></ProtectedRoute>} />
+                    <Route path="/student_dashboard" element={<ProtectedRoute allowedRoles={'student'}><StudentDashboard profileImage={profileImage} setProfileImage={setProfileImage}/></ProtectedRoute>} />
                     <Route path="/student_schedule" element={<ProtectedRoute allowedRoles={'student'}><StudentSchedule /></ProtectedRoute>} />
                     <Route path="/grades_page" element={<ProtectedRoute><StudentGradingPage allowedRoles={'student'} /></ProtectedRoute>} />
                     <Route path="/student_faculty_evaluation" element={<ProtectedRoute allowedRoles={'student'}><StudentFacultyEvaluation /></ProtectedRoute>} />

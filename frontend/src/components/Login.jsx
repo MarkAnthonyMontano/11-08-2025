@@ -52,6 +52,15 @@ const Login = ({ setIsAuthenticated }) => {
         { headers: { "Content-Type": "application/json" } }
       );
 
+      if (!response.data.success) {
+        setSnack({
+          open: true,
+          message: response.data.message,
+          severity: "error",
+        });
+        return;
+      }
+
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("email", response.data.email);
       localStorage.setItem("role", response.data.role);

@@ -3594,8 +3594,6 @@ app.post("/api/verify-password", async (req, res) => {
   }
 });
 
-
-// ----------------- LOGIN -----------------
 app.post("/login", async (req, res) => {
   const { email: loginCredentials, password } = req.body;
   if (!loginCredentials || !password) {
@@ -3607,7 +3605,7 @@ app.post("/login", async (req, res) => {
 
   if (record.lockUntil && record.lockUntil > now) {
     const secondsLeft = Math.ceil((record.lockUntil - now) / 1000);
-    return res.status(429).json({ message: `Too many failed attempts. Try again in ${secondsLeft}s.` });
+    return res.json({ success: false, message: `Too many failed attempts. Try again in ${secondsLeft}s.` });
   }
 
   try {
@@ -3659,10 +3657,10 @@ app.post("/login", async (req, res) => {
       if (record.count >= 3) {
         record.lockUntil = now + 3 * 60 * 1000;
         loginAttempts[loginCredentials] = record;
-        return res.status(429).json({ message: "Too many failed attempts. Locked for 3 minutes." });
+        return res.json({ success: false, message: "Too many failed attempts. Locked for 3 minutes." });
       }
       loginAttempts[loginCredentials] = record;
-      return res.status(400).json({ message: "Invalid email or student number" });
+      return res.json({ success: false, message: "Invalid email or student number" });
     }
 
     const user = results[0];
@@ -3675,18 +3673,15 @@ app.post("/login", async (req, res) => {
       if (record.count >= 3) {
         record.lockUntil = now + 3 * 60 * 1000;
         loginAttempts[loginCredentials] = record;
-        return res.status(429).json({ message: "Too many failed attempts. Locked for 3 minutes." });
+        return res.json({ success: false, message: "Too many failed attempts. Locked for 3 minutes." });
       }
 
       loginAttempts[loginCredentials] = record;
-      return res.status(400).json({
-        message: `Invalid password. You have ${remaining} attempt(s) remaining.`,
-        remaining,
-      });
+      return res.json({ success: false, message: `Invalid Password or Email, You have ${remaining} attempt(s) remaining.`, remaining });
     }
 
     if ((user.source === "prof" || user.source === "user") && user.status === 0) {
-      return res.status(400).json({ message: "The Account is Inactive" });
+      return res.json({ success: false, message: "The user didn’t exist or account is inactive" });
     }
 
     // ✅ Generate OTP
@@ -3733,6 +3728,7 @@ app.post("/login", async (req, res) => {
     res.json({
       message: "OTP sent to registered email",
       token,
+      success: true,
       email: user.email,
       role: user.role,
       person_id: user.person_id,
@@ -3770,11 +3766,11 @@ app.post("/login_applicant", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.json({ success: false, message: "Invalid Password or Email" });
     }
 
     if (user.status === 0) {
-      return res.status(400).json({ message: "The Account is Inactive" });
+      return res.json({ success: false, message: "The user didn’t exist or is inactive" });
     }
 
     const person_id = user.person_id;
@@ -3846,6 +3842,7 @@ app.post("/login_applicant", async (req, res) => {
     res.json({
       message: "Login successful",
       token,
+      success: true,
       email: user.email,
       role: user.role,
       person_id: user.person_id,
@@ -6459,7 +6456,7 @@ io.on("connection", (socket) => {
 
   socket.on("send_schedule_emails", async ({ schedule_id, user_person_id }) => {
     try {
-      // ✅ 1️⃣ Get actor info with employee_id, full name, and email
+      // ✅ 1️⃣ Get actor info
       const [actorRows] = await db3.query(
         `SELECT email, role, employee_id, last_name, first_name, middle_name 
        FROM user_accounts 
@@ -6483,13 +6480,15 @@ io.on("connection", (socket) => {
         actorName = `${role} (${empId}) - ${lname}, ${fname} ${mname}`.trim();
       }
 
-      // ✅ 2️⃣ Get company name from settings (no more hard-coded "Admission Office")
-      const [[company]] = await db.query(
-        "SELECT company_name FROM company_settings WHERE id = 1"
+      // ✅ 2️⃣ Get SHORT TERM (Admission Office Name)
+      // ✅ 2️⃣ Get SHORT TERM + Build Display Name
+      const [[office]] = await db.query(
+        "SELECT short_term FROM company_settings WHERE id = 1"
       );
-      const companyName = company?.company_name || "Admission Office";
+      const shortTerm = office?.short_term || "EARIST"; // fallback
+      const officeName = `${shortTerm} - Admission Office`;
 
-      // ✅ 3️⃣ Fetch applicants (only those who haven’t been emailed yet)
+      // ✅ 3️⃣ Fetch applicants who haven’t been emailed yet
       const [rows] = await db.query(
         `SELECT 
          ea.schedule_id,
@@ -6528,7 +6527,7 @@ io.on("connection", (socket) => {
       const failed = [];
       const skipped = [];
 
-      // ✅ Helper function to format time
+      // ✅ Helper to format time
       const formatTime = (timeStr) => {
         if (!timeStr) return "";
         const [hours, minutes] = timeStr.split(":");
@@ -6538,7 +6537,7 @@ io.on("connection", (socket) => {
         return `${h}:${minutes} ${ampm}`;
       };
 
-      // ✅ Helper function to send individual email
+      // ✅ Helper: send one email
       const sendEmail = async (row) => {
         if (!row.emailAddress) {
           skipped.push(row.applicant_number);
@@ -6550,7 +6549,7 @@ io.on("connection", (socket) => {
         const formattedEnd = formatTime(row.end_time);
 
         const mailOptions = {
-          from: `"${companyName}" <${process.env.EMAIL_USER}>`,
+          from: `"${officeName}" <${process.env.EMAIL_USER}>`,
           to: row.emailAddress,
           subject: "Your Entrance Exam Schedule",
           text: `Hello ${row.first_name} ${row.last_name},
@@ -6572,8 +6571,9 @@ This printed permit must be presented to your proctor on the exam day to verify 
 
 Thank you and good luck!
 
-${companyName}`,
+${officeName}`,
         };
+
 
         try {
           await transporter.sendMail(mailOptions);
@@ -6609,7 +6609,7 @@ ${companyName}`,
         }
       };
 
-      // ✅ 4️⃣ Process in batches
+      // ✅ 4️⃣ Batch processing
       for (let i = 0; i < rows.length; i += batchSize) {
         const batch = rows.slice(i, i + batchSize);
         await Promise.all(batch.map(sendEmail));
@@ -6618,7 +6618,7 @@ ${companyName}`,
         }
       }
 
-      // ✅ 5️⃣ Send summary back to sender
+      // ✅ 5️⃣ Send summary back
       socket.emit("send_schedule_emails_result", {
         success: true,
         sent,
@@ -6627,7 +6627,7 @@ ${companyName}`,
         message: `Emails processed: Sent=${sent.length}, Failed=${failed.length}, Skipped=${skipped.length}`,
       });
 
-      // ✅ 6️⃣ Notify other clients for refresh
+      // ✅ 6️⃣ Notify others
       io.emit("schedule_updated", { schedule_id });
     } catch (err) {
       console.error("Error in send_schedule_emails:", err);
@@ -9286,24 +9286,6 @@ app.post("/grade_period_activate/:id", async (req, res) => {
   }
 });
 
-// API TO GET PROFESSOR PERSONAL DATA
-app.get("/get_prof_data/:id", async (req, res) => {
-  const id = req.params.id;
-
-  const query = `
-    SELECT pt.prof_id, pt.profile_image, pt.email, pt.fname, pt.mname, pt.lname FROM prof_table AS pt
-    WHERE pt.person_id = ?
-  `;
-
-  try {
-    const [rows] = await db3.query(query, [id]);
-    console.log(rows);
-    res.json(rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 
 app.get('/course_assigned_to/:userID', async (req, res) => {
@@ -13285,7 +13267,7 @@ app.get("/get_prof_data/:id", async (req, res) => {
   const id = req.params.id;
 
   const query = `
-    SELECT pt.prof_id, pt.profile_image, pt.email, pt.fname, pt.mname, pt.lname FROM prof_table AS pt
+    SELECT pt.prof_id, pt.person_id, pt.profile_image, pt.email, pt.fname, pt.mname, pt.lname FROM prof_table AS pt
     WHERE pt.person_id = ?
   `;
 
@@ -13884,7 +13866,7 @@ app.post("/update_applicant/:user_id", profileUpload.single("profile_picture"), 
       const year = new Date(philTime).getFullYear();
 
       const ext = path.extname(file.originalname).toLowerCase();
-      finalFilename = `${a_id}_profile_image_${year}${ext}`;
+      finalFilename = `${a_id}_1by1_${year}${ext}`;
 
       const uploadDir = path.join(__dirname, "uploads");
       const tempPath = path.join(uploadDir, file.filename);
@@ -13916,7 +13898,185 @@ app.post("/update_applicant/:user_id", profileUpload.single("profile_picture"), 
   }
 });
 
+// ---------------- Get total required count ----------------
+app.get("/total-requirements", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT COUNT(*) AS total FROM requirements_table WHERE is_verifiable = 1");
+    res.json({ total: rows[0].total });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to get total requirements" });
+  }
+});
 
+app.get("/api/get_prof_account_id/:person_id", async (req, res) => {
+  const { person_id } = req.params;
+  try {
+    const [rows] = await db3.query(
+      "SELECT prof_id FROM prof_table WHERE person_id = ? LIMIT 1",
+      [person_id]
+    );
+    if (rows.length === 0) return res.status(404).json({ message: "User not found" });
+    res.json({ user_account_id: rows[0].prof_id });
+  } catch (err) {
+    console.error("❌ Error fetching uproft_id:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/update_faculty/:id", profileUpload.single("profile_picture"), async (req, res) => {
+  const { id } = req.params;
+  const file = req.file;
+
+  try {
+    const [existing] = await db3.query("SELECT * FROM prof_table WHERE prof_id = ?", [id]);
+    if (existing.length === 0) return res.status(404).json({ message: "Faculty not found" });
+
+    const current = existing[0];
+
+    let finalFilename = current.profile_image; // fallback to existing if no new file
+
+    if (file) {
+      // ✅ Get employee_id for filename
+      const employee_id = current.prof_id || "unknown";
+
+      // ✅ Get current Philippine year
+      const philTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" });
+      const year = new Date(philTime).getFullYear();
+
+      // ✅ Build final filename
+      const ext = path.extname(file.originalname).toLowerCase();
+      finalFilename = `2${current.person_id}${employee_id}_profile_image_${year}${ext}`;
+
+      // ✅ Paths
+      const uploadDir = path.join(__dirname, "uploads");
+      const tempPath = path.join(uploadDir, file.filename);
+      const newPath = path.join(uploadDir, finalFilename);
+
+      // ✅ Delete old image if exists
+      if (current.profile_image) {
+        const oldPath = path.join(uploadDir, current.profile_image);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      // ✅ Rename temp file to proper name
+      fs.renameSync(tempPath, newPath);
+    }
+
+    // ✅ Update registrar data in DB
+    const updated = {
+      profile_picture: finalFilename,
+    };
+
+    const sql = `
+      UPDATE prof_table
+      SET profile_image=?
+      WHERE prof_id=?`;
+    const values = [
+      updated.profile_picture,
+      id,
+    ];
+
+    await db3.query(sql, values);
+
+    res.json({
+      success: true,
+      message: "Faculty updated successfully!",
+      updated,
+    });
+  } catch (error) {
+    console.error("❌ Error updating faculty:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.put("/api/update_prof_profile_image/:person_id", profileUpload.single("profileImage"), async (req, res) => {
+  const { person_id } = req.params;
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  const filename = req.file.filename;
+
+  try {
+    // Update DB (set filename to the same name we saved)
+    const [result] = await db3.query(
+      "UPDATE prof_table SET profile_image = ? WHERE person_id = ?",
+      [filename, person_id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Person not found" });
+    }
+
+    res.json({
+      message: "✅ Profile image updated successfully",
+      filename,
+    });
+  } catch (err) {
+    console.error("❌ DB Error:", err);
+    res.status(500).json({ error: "Database update failed" });
+  }
+});
+
+app.post("/update_student/:user_id", profileUpload.single("profile_picture"), async (req, res) => {
+  const { user_id } = req.params;
+  const data = req.body;
+  const file = req.file;
+
+  try {
+    const [existing] = await db3.query("SELECT * FROM user_accounts WHERE id = ?", [user_id]);
+    if (existing.length === 0) return res.status(404).json({ message: "User not found" });
+    const student_person_id = existing[0].person_id;
+
+    const [student] = await db3.query("SELECT * FROM student_numbering_table WHERE person_id = ?", [student_person_id]);
+
+    if (student.length === 0) return res.status(404).json({ message: "Student not found" });
+    const student_number = student[0].student_number;
+
+    const [datas] = await db3.query("SELECT * FROM person_table WHERE person_id = ?", [student_person_id]);
+    const current = datas[0]
+
+    let finalFilename = current.profile_img;
+
+    if (file) {
+      const s_id = student_number || "unknown";
+
+      const philTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" });
+      const year = new Date(philTime).getFullYear();
+
+      const ext = path.extname(file.originalname).toLowerCase();
+      finalFilename = `${s_id}_profile_image_${year}${ext}`;
+
+      const uploadDir = path.join(__dirname, "uploads");
+      const tempPath = path.join(uploadDir, file.filename);
+      const newPath = path.join(uploadDir, finalFilename);
+
+      if (current.profile_img) {
+        const oldPath = path.join(uploadDir, current.profile_img);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      fs.renameSync(tempPath, newPath);
+    }
+
+    const sql = `
+      UPDATE person_table SET profile_img = ? WHERE person_id = ?
+    `;
+
+    const [updated] = await db3.query(sql, [finalFilename, student_person_id]);
+
+    res.json({
+      success: true,
+      message: "Student updated successfully!",
+      updated
+    });
+
+  } catch (error) {
+    console.error("❌ Error updating student:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 http.listen(5000, () => {
   console.log("Server with Socket.IO running on port 5000");

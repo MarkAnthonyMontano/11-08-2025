@@ -21,13 +21,15 @@ import PersonIcon from "@mui/icons-material/Person";
 import CertificateOfRegistration from "../student/CertificateOfRegistration";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import AddIcon from "@mui/icons-material/Add";
 
 
-
-const StudentDashboard = () => {
+const StudentDashboard = ({ profileImage, setProfileImage }) => {
   const [userID, setUserID] = useState("");
   const [user, setUser] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [hovered, setHovered] = useState(false);
+  const fileInputRef = useRef(null);
   const [personData, setPerson] = useState({
     student_number: '',
     first_name: '',
@@ -281,6 +283,46 @@ const StudentDashboard = () => {
     fetchAnnouncements();
   }, []);
 
+   const handleFileChange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const person_id = localStorage.getItem("person_id");
+        const role = localStorage.getItem("role");
+        
+        // ✅ Get user_account_id
+        const res = await axios.get(
+          `http://localhost:5000/api/get_user_account_id/${person_id}`
+        );
+        
+        const user_account_id = res.data.user_account_id;
+        
+        const formData = new FormData();
+        
+        formData.append("profile_picture", file);
+        
+        // ✅ Upload image using same backend API
+        await axios.post(
+          `http://localhost:5000/update_student/${user_account_id}`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        
+        // ✅ Refresh profile info to display the new image
+        const updated = await axios.get(
+          `http://localhost:5000/api/person_data/${person_id}/${role}`
+        );
+        
+        setPerson(updated.data.profile_image);
+        const baseUrl = `http://localhost:5000/uploads/${updated.data.profile_image}`;
+        setProfileImage(`${baseUrl}?t=${Date.now()}`);
+      } catch (error) {
+        console.error("❌ Upload failed:", error);
+      }
+    }
+  
+
   return (
     <Box sx={{ p: 4, marginLeft: "-2rem", paddingRight: 8, height: "calc(100vh - 150px)", overflowY: "auto" }}>
       {/* Header */}
@@ -314,10 +356,55 @@ const StudentDashboard = () => {
                   {!personData?.profile_image ? (
                     <PersonIcon sx={{ color: "maroon" }} fontSize="large" />
                   ) : (
+                    <Box
+                    position="relative"
+                    display="inline-block"
+                    mr={2}
+                    onMouseEnter={() => setHovered(true)}
+                    onMouseLeave={() => setHovered(false)}
+                  >
                     <Avatar
-                      src={`http://localhost:5000/uploads/${personData.profile_image}`}
-                      sx={{ width: 80, height: 80, border: "2px solid maroon" }}
+                      src={profileImage || `http://localhost:5000/uploads/${personData?.profile_image}`}
+                      alt={personData?.fname}
+                      sx={{
+                        width: 90,
+                        height: 90,
+                        border: "2px solid maroon",
+                        cursor: "pointer",
+                        mt: -1.5,
+                      }}
+                      onClick={() => fileInputRef.current.click()}
+                    >
+                      {personData?.fname?.[0]}
+                    </Avatar>
+
+                    {/* Hover upload button */}
+                    {hovered && (
+                      <IconButton
+                        size="small"
+                        sx={{
+                          position: "absolute",
+                          bottom: 0,
+                          right: 0,
+                          bgcolor: "maroon",
+                          color: "white",
+                          "&:hover": { bgcolor: "#6D2323" },
+                        }}
+                        onClick={() => fileInputRef.current.click()}
+                      >
+                        <AddIcon fontSize="small" />
+                      </IconButton>
+                    )}
+
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      onChange={handleFileChange}
                     />
+                  </Box>
                   )}
                   <Box>
                     <Typography variant="h4" fontWeight="bold" color="maroon">
